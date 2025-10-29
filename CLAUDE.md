@@ -195,6 +195,52 @@ Improve readability by extracting validation logic into:
 
 ---
 
+## 📖 Documentación de API
+
+### OpenAPI / Swagger
+
+El proyecto utiliza **OpenAPI 3.0** para documentar todos los endpoints de la API REST.
+
+**Ubicación:** `src/main/resources/api.yml`
+
+**Principios de Documentación:**
+
+1. **Completitud**: Documentar todos los endpoints con:
+   - Descripción clara del propósito
+   - Parámetros de entrada con validaciones
+   - Posibles respuestas (éxito y errores)
+   - Ejemplos de uso
+
+2. **Estructura OpenAPI**:
+   - `paths`: Definición de endpoints por ruta
+   - `components/schemas`: Modelos de datos reutilizables
+   - `components/parameters`: Parámetros compartidos
+   - Tags para agrupar endpoints relacionados
+
+3. **Schemas Documentados**:
+   - **Request DTOs**: Validaciones, longitudes, patrones
+   - **Response DTOs**: Estructura de respuesta exitosa
+   - **ErrorResponse**: Formato estándar de errores
+   - **Enums**: Valores permitidos con descripciones
+
+4. **Códigos de Estado HTTP**:
+   - `200`: Operación exitosa (GET, PUT, PATCH)
+   - `201`: Recurso creado (POST)
+   - `204`: Sin contenido (DELETE exitoso)
+   - `400`: Error de validación o regla de negocio
+   - `404`: Recurso no encontrado
+
+5. **Mantenimiento**:
+   - Actualizar `api.yml` al agregar/modificar endpoints
+   - Sincronizar con cambios en DTOs y validaciones
+   - Incluir ejemplos representativos
+
+**Visualización:**
+- Importar `api.yml` en Swagger Editor: https://editor.swagger.io/
+- Usar herramientas como Postman para importar la colección
+
+---
+
 ## 🔄 Versionamiento y Evolución
 
 - Toda modificación arquitectónica significativa debe documentarse en este archivo.
