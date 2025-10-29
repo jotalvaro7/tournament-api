@@ -1,0 +1,316 @@
+openapi: 3.0.3
+info:
+  title: Tournament API
+  description: API for managing tournaments with hexagonal architecture
+  version: 1.0.0
+  contact:
+    name: Tournament API Team
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Tournaments
+    description: Tournament management endpoints
+
+paths:
+  /api/tournaments:
+    get:
+      tags:
+        - Tournaments
+      summary: Get all tournaments
+      description: Retrieve a list of all tournaments
+      operationId: getAllTournaments
+      responses:
+        '200':
+          description: List of tournaments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TournamentResponse'
+
+    post:
+      tags:
+        - Tournaments
+      summary: Create a new tournament
+      description: Create a new tournament with name and description
+      operationId: createTournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentRequest'
+      responses:
+        '201':
+          description: Tournament created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '400':
+          description: Invalid request body or duplicate tournament name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tournaments/{id}:
+    get:
+      tags:
+        - Tournaments
+      summary: Get tournament by ID
+      description: Retrieve a specific tournament by its ID
+      operationId: getTournamentById
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '200':
+          description: Tournament retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Tournaments
+      summary: Update tournament
+      description: Update an existing tournament's name and description
+      operationId: updateTournament
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentRequest'
+      responses:
+        '200':
+          description: Tournament updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '400':
+          description: Invalid request body or duplicate tournament name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Tournaments
+      summary: Delete tournament
+      description: Delete a tournament (only allowed if status is CREATED or CANCELLED)
+      operationId: deleteTournament
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '204':
+          description: Tournament deleted successfully
+        '400':
+          description: Tournament cannot be deleted (invalid status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tournaments/{id}/start:
+    patch:
+      tags:
+        - Tournaments
+      summary: Start tournament
+      description: Change tournament status from CREATED to IN_PROGRESS
+      operationId: startTournament
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '200':
+          description: Tournament started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '400':
+          description: Tournament cannot be started (invalid status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tournaments/{id}/end:
+    patch:
+      tags:
+        - Tournaments
+      summary: End tournament
+      description: Change tournament status from IN_PROGRESS to COMPLETED
+      operationId: endTournament
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '200':
+          description: Tournament ended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '400':
+          description: Tournament cannot be ended (invalid status)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tournaments/{id}/cancel:
+    patch:
+      tags:
+        - Tournaments
+      summary: Cancel tournament
+      description: Change tournament status to CANCELLED (only allowed if not COMPLETED)
+      operationId: cancelTournament
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '200':
+          description: Tournament cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TournamentResponse'
+        '400':
+          description: Tournament cannot be cancelled (already completed)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  parameters:
+    TournamentId:
+      name: id
+      in: path
+      description: Tournament unique identifier
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+  schemas:
+    TournamentRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          description: Tournament name (must be unique)
+          example: Copa America 2025
+        description:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Tournament description
+          example: Torneo internacional de futbol en Sudamerica
+
+    TournamentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Tournament unique identifier
+          example: 1
+        name:
+          type: string
+          description: Tournament name
+          example: Copa America 2025
+        description:
+          type: string
+          description: Tournament description
+          example: Torneo internacional de futbol en Sudamerica
+        status:
+          $ref: '#/components/schemas/TournamentStatus'
+
+    TournamentStatus:
+      type: string
+      enum:
+        - CREATED
+        - IN_PROGRESS
+        - COMPLETED
+        - CANCELLED
+      description: |
+        Tournament status lifecycle:
+        - CREATED: Initial state when tournament is created
+        - IN_PROGRESS: Tournament has started
+        - COMPLETED: Tournament has finished
+        - CANCELLED: Tournament was cancelled (can be cancelled from any state except COMPLETED)
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        error:
+          type: string
+          description: Error type
+          example: Bad Request
+        message:
+          type: string
+          description: Error message
+          example: Tournament not found
+        path:
+          type: string
+          description: Request path
+          example: /api/tournaments/1
