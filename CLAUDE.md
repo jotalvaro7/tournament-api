@@ -1,189 +1,202 @@
 # CLAUDE.md
 **Autor:** Arquitectura Técnica  
-**Versión:** 1.0.0  
-**Última actualización:** 2025-10-28  
-**Propósito:** Documentar las convenciones, decisiones y buenas prácticas que rigen la arquitectura del sistema, bajo el enfoque de Arquitectura Hexagonal (Puertos y Adaptadores).
+**Versión:** 1.1.0  
+**Última actualización:** 2025-10-29  
+**Propósito:** Documentar las convenciones, decisiones y buenas prácticas que rigen la arquitectura del sistema, bajo el enfoque de **Arquitectura de Puertos y Adaptadores** con **Vertical Slicing** (evolución moderna de la arquitectura hexagonal clásica).
 
 ---
 
 ## 🧭 Visión General
 
-Este proyecto sigue los principios de la **Arquitectura Hexagonal** para lograr independencia entre el dominio del negocio y los detalles de infraestructura.  
-El objetivo es permitir que la lógica de negocio evolucione sin depender de frameworks, bases de datos ni mecanismos externos.
+Este proyecto adopta la **Arquitectura de Puertos y Adaptadores (Ports and Adapters)** combinada con **Vertical Slicing**, reemplazando la estructura rígida de la arquitectura hexagonal tradicional.  
 
-El código debe organizarse de modo que las dependencias fluyan **desde el exterior hacia el dominio**, y nunca al revés.
+El objetivo es mantener **independencia del dominio**, **alta modularidad** y **claridad en la organización del código**, donde cada "slice" vertical representa un **módulo funcional autónomo** (por ejemplo: `tournaments`, `players`, `teams`), con sus propias capas internas (dominio, aplicación, infraestructura).
+
+Cada slice puede evolucionar de forma independiente y contiene todos los elementos necesarios para implementar un conjunto coherente de funcionalidades del negocio.
 
 ---
 
-## 🧩 Principios de Arquitectura
+## 🧩 Principios Arquitectónicos
 
-- **Dominio independiente:** el núcleo del dominio no debe depender de frameworks ni de librerías externas.
-- **Separación de responsabilidades:** cada capa tiene un propósito claro y limitado.
-- **Inversión de dependencias:** las abstracciones residen en el dominio, las implementaciones en la infraestructura.
-- **Alta cohesión y bajo acoplamiento.**
-- **Infraestructura reemplazable:** todo componente externo debe poder sustituirse sin modificar la lógica central.
-- **Diseño orientado a puertos:** los casos de uso se exponen mediante interfaces (puertos) implementadas por adaptadores.
+- **Dominio puro:** el núcleo del negocio no depende de frameworks ni librerías externas.  
+- **Puertos y Adaptadores:** las dependencias fluyen hacia el dominio; los detalles técnicos se implementan en adaptadores.  
+- **Slicing vertical:** cada feature (módulo) contiene sus capas internas — dominio, aplicación e infraestructura — en lugar de tener una estructura horizontal compartida.  
+- **Alta cohesión y bajo acoplamiento:** cada slice agrupa solo lo que pertenece a su caso de uso.  
+- **Reemplazabilidad:** cada adaptador puede sustituirse sin alterar la lógica central.  
+- **Escalabilidad modular:** nuevos módulos pueden agregarse sin afectar los existentes.  
 
 ---
 
 ## 🧠 Estructura Arquitectónica
 
-### Dominio (Core) - ❌ SIN FRAMEWORKS
+### 🧱 Estructura por "Slice" (feature module)
+
+Ejemplo:
+```
+src/
+ └── main/java/com/personal/tournament_api/
+     ├── tournaments/
+     │    ├── domain/
+     │    │    ├── Tournament.java
+     │    │    ├── TournamentDomainException.java
+     │    │    ├── TournamentRepositoryPort.java
+     │    │    └── events/
+     │    ├── application/
+     │    │    ├── CreateTournamentService.java
+     │    │    ├── GetTournamentByIdService.java
+     │    │    └── commands/
+     │    ├── infrastructure/
+     │    │    ├── persistence/
+     │    │    │    ├── JpaTournamentRepository.java
+     │    │    │    └── TournamentEntity.java
+     │    │    ├── rest/
+     │    │    │    └── TournamentController.java
+     │    │    └── mappers/
+     │    └── TournamentModuleConfiguration.java
+     ├── players/
+     │    ├── domain/
+     │    ├── application/
+     │    ├── infrastructure/
+     │    └── PlayerModuleConfiguration.java
+     └── shared/
+          ├── domain/
+          ├── infrastructure/
+          └── application/
+```
+
+Cada módulo (`tournaments`, `players`, etc.) es **autosuficiente**: define su dominio, sus puertos y sus adaptadores sin depender directamente de otros módulos.
+
+---
+
+### 🧩 Dominio (Core) — ❌ SIN FRAMEWORKS
+
 Contiene:
-- Entidades, Value Objects, Agregados
-- Reglas de negocio puras
-- Servicios de dominio (si aplica)
-- Eventos del dominio (si aplica)
-- Puertos de salida (interfaces para repositorios)
+- Entidades, Value Objects, Agregados  
+- Reglas de negocio puras  
+- Servicios de dominio (si aplica)  
+- Excepciones de dominio  
+- Puertos de salida (interfaces para repositorios o servicios externos)  
 
-**IMPORTANTE:** El dominio NO debe tener dependencias de frameworks (Spring, JPA, etc.). Sin anotaciones como @Service, @Entity, @Component.
+**Reglas:**
+- No usar anotaciones de Spring ni JPA.  
+- No inyectar dependencias mediante frameworks.  
+- Solo lógica pura en Java.  
 
-### Aplicación - ✅ PUEDE USAR FRAMEWORKS
+---
+
+### ⚙️ Aplicación — ✅ CON FRAMEWORKS
+
 Contiene:
-- Casos de uso o puertos de entrada (interfaces)
-- Servicios de aplicación (implementaciones)
-- Orquestación del flujo de negocio
-- Coordinación con puertos de salida
-- Mapeo de datos entre dominio e infraestructura
+- Casos de uso o puertos de entrada  
+- Servicios de aplicación  
+- Coordinación entre dominio e infraestructura  
+- Mapeo de datos (DTOs ↔ entidades)  
 
-**IMPORTANTE:** Los servicios de aplicación SÍ pueden usar anotaciones de Spring (@Service, @RequiredArgsConstructor, etc.). Su propósito es orquestar, no contener lógica de negocio.
+**Reglas:**
+- Puede usar Spring (`@Service`, `@Transactional`, etc.)  
+- No debe tener lógica de negocio, solo orquestación.  
 
-### Infraestructura (Adapters) - ✅ PUEDE USAR FRAMEWORKS
+---
+
+### 🌐 Infraestructura (Adapters) — ✅ CON FRAMEWORKS
+
 Contiene:
-- Implementaciones concretas de los puertos de salida (bases de datos, APIs, colas, archivos, etc.)
-- Adaptadores de entrada (REST, mensajería, CLI, batch, etc.)
-- Configuración técnica (frameworks, seguridad, persistencia)
+- Implementaciones concretas de los puertos del dominio  
+- Adaptadores de entrada (REST, eventos, CLI, etc.)  
+- Persistencia, seguridad, configuración técnica  
 
-**IMPORTANTE:** Esta capa usa completamente frameworks (JPA @Entity, Spring @Repository, @RestController, etc.).
+**Reglas:**
+- Puede usar Spring Data, JPA, Web, etc.  
+- Expone endpoints o integra sistemas externos.  
 
 ---
 
 ## 🧰 Patrones de Diseño Utilizados
 
-- **Repository Pattern:** abstrae el acceso a datos.
-- **Factory / Builder:** para la creación de objetos complejos del dominio.
-- **Strategy:** permite intercambiar comportamientos en tiempo de ejecución.
-- **Template Method:** define algoritmos con pasos personalizables.
-- **Domain Events:** comunicación interna sin acoplamiento entre entidades o agregados.
-- **CQRS (opcional):** separación de comandos y consultas cuando la complejidad lo requiere.
-- **Specification Pattern:** encapsula reglas de negocio reutilizables.
+- **Ports and Adapters:** separación clara entre lógica y detalles técnicos.  
+- **Repository Pattern:** para abstracción de persistencia.  
+- **Factory / Builder:** para construcción de objetos complejos del dominio.  
+- **Strategy / Policy:** para intercambiar comportamientos dinámicos.  
+- **Domain Events:** para comunicación desacoplada.  
+- **Specification Pattern:** para reglas de negocio reutilizables.  
+- **CQRS (opcional):** separar comandos y consultas.
+- **Entre otros según necesidad.**
 
 ---
 
-## ⚙️ Convenciones de Implementación
+## ⚙️ Convenciones por Capa
 
-### Uso de Frameworks por Capa
+### 🧩 Dominio
+- ❌ Sin anotaciones de Spring o JPA.  
+- ✅ Solo Java puro.  
+- ✅ Lógica de negocio pura.  
 
-**Dominio (domain/):**
-- ❌ NO usar anotaciones de Spring (@Service, @Component, @Autowired)
-- ❌ NO usar anotaciones de JPA (@Entity, @Table, @Column)
-- ❌ NO inyectar dependencias mediante frameworks
-- ✅ Solo Java puro con lógica de negocio
-- ✅ Constructores simples sin frameworks
+### ⚙️ Aplicación
+- ✅ Usa `@Service`, `@RequiredArgsConstructor`, etc.  
+- ⚠️ Sin lógica de negocio.  
+- ✅ Orquesta los flujos.  
 
-**Aplicación (application/):**
-- ✅ Usar @Service en servicios de aplicación
-- ✅ Usar @RequiredArgsConstructor de Lombok para inyección
-- ✅ Inyectar dependencias mediante constructor
-- ⚠️  NO contener lógica de negocio, solo orquestación
-
-**Infraestructura (infrastructure/):**
-- ✅ Usar todas las anotaciones necesarias (@Entity, @Repository, @RestController, @RequestMapping, etc.)
-- ✅ Frameworks completos (Spring Data JPA, Spring Web, etc.)
-
-### Otras Convenciones
-
-- Los puertos (interfaces) definen los puntos de interacción entre capas.
-- Las implementaciones concretas viven fuera del dominio.
-- Evitar clases o métodos estáticos para la lógica de negocio.
-- Los servicios de aplicación deben ser delgados: su propósito es orquestar, no contener lógica.
-- Las pruebas unitarias deben cubrir la lógica de dominio de forma aislada.
+### 🌐 Infraestructura
+- ✅ Usa anotaciones de frameworks.  
+- ✅ Expone controladores REST, repositorios, etc.  
 
 ---
 
-## 🧩 Guía para Nuevos Casos de Uso
+## 🧩 Buenas Prácticas
 
-1. Crear una interfaz que represente el **puerto de entrada** del caso de uso.
-2. Implementar el caso de uso en un **servicio de aplicación**.
-3. Definir los **puertos de salida** necesarios (interfaces para persistencia o servicios externos).
-4. Implementar dichos puertos como **adaptadores de infraestructura**.
-5. Asegurar que la lógica principal se mantenga en el dominio.
-6. Exponer el caso de uso mediante un adaptador de entrada (ej. API REST, evento, comando).
-
----
-
-## ✅ Buenas Prácticas
-
-- Mantener el **dominio libre de anotaciones** o dependencias de frameworks.
-- Evitar colocar lógica de negocio en controladores, repositorios o adaptadores.
-- Usar DTOs o mapeadores para aislar los modelos del dominio.
-- Respetar el **Principio de Deméter** (“tell, don’t ask”).
-- Aplicar **principios SOLID** consistentemente.
-- Definir interfaces claras para los contratos de comunicación entre capas.
-- Tests:
-    - **Unitarios:** dominio y servicios de aplicación.
-    - **Integración:** adaptadores e infraestructura.
-- Mantener una **cobertura mínima del 80%** en componentes críticos.
+- Mantener el dominio **aislado de frameworks**.  
+- **Un slice, una responsabilidad.** No mezclar módulos.  
+- Reutilizar lógica común en `shared/`.  
+- Evitar servicios "gigantes"; preferir clases pequeñas y específicas.  
+- Respetar **principios SOLID**.  
+- Aplicar **DDD táctico** donde tenga sentido (Aggregate Roots, Value Objects, etc.).  
+- Mantener **test unitarios** para dominio y aplicación, y **tests de integración** para adaptadores.  
+- Mantener **dominio libre de dependencias circulares**.  
 
 ---
 
-## 📝 Convenciones de Git y Commits
+## 🧩 Códigos de Estado HTTP
 
-### Formato de Commits
+- `200`: Operación exitosa  
+- `201`: Recurso creado  
+- `204`: Eliminación exitosa (sin cuerpo)  
+- `400`: Error de validación o regla de negocio  
+- `404`: Recurso no encontrado  
+- `409`: Conflicto de negocio (duplicados, inconsistencias)  
 
-Todos los commits deben estar en **inglés** y seguir el formato:
+---
 
+## 🧪 Testing
+
+- **Dominio:** tests unitarios puros (sin Spring).  
+- **Aplicación:** tests unitarios o con mocks de puertos.  
+- **Infraestructura:** tests de integración (Spring Boot Test).  
+- Mantener cobertura mínima del 80% en lógica crítica.  
+
+---
+
+## 🧰 Commits y Versionamiento
+
+**Formato de commits:**
 ```
 <type>: <description>
 
 <optional body>
 ```
 
-### Tipos de Commit
+**Tipos:**
+- feat — nueva funcionalidad  
+- fix — corrección  
+- refactor — cambios internos sin alterar funcionalidad  
+- docs — documentación  
+- test — pruebas  
+- chore — mantenimiento  
 
-- **feat**: Nueva funcionalidad
-- **fix**: Corrección de bugs
-- **refactor**: Refactorización de código sin cambiar funcionalidad
-- **docs**: Cambios en documentación
-- **test**: Agregar o modificar tests
-- **chore**: Tareas de mantenimiento (dependencias, configuración)
-- **style**: Cambios de formato (sin afectar lógica)
-
-### Reglas de Commits
-
-1. **Descripción clara y descriptiva**: Explica QUÉ y POR QUÉ, no CÓMO
-   - ✅ `feat: add unique name validation for tournaments`
-   - ❌ `feat: add method`
-
-2. **Idioma**: Siempre en inglés
-
-3. **Atomic commits**: Un commit por concepto lógico
-   - Separa diferentes funcionalidades en commits distintos
-   - Agrupa cambios relacionados en un solo commit
-
-4. **Mensajes descriptivos**:
-   - Primera línea: máximo 72 caracteres
-   - Cuerpo opcional: explica contexto si es necesario
-   - Usa imperativo: "add" no "added" o "adds"
-
-### Ejemplos
-
-**Buenos commits:**
+**Ejemplo:**
 ```
-feat: implement tournament domain model with state machine
+feat: implement player registration use case
 
-Add Tournament entity with business rules for state transitions:
-- CREATED → IN_PROGRESS → COMPLETED
-- Cancellation only allowed for non-completed tournaments
-```
-
-```
-refactor: extract guard clauses to private methods in Tournament
-
-Improve readability by extracting validation logic into:
-- ensureIsCreated()
-- ensureIsInProgress()
-- ensureIsNotCompleted()
+Add Player entity, repository port, and REST adapter for player creation.
 ```
 
 **Malos commits:**
@@ -195,77 +208,26 @@ Improve readability by extracting validation logic into:
 
 ---
 
-## 📖 Documentación de API
+## 🧭 Evolución Arquitectónica
 
-### OpenAPI / Swagger
+Esta arquitectura **ya no sigue la estructura horizontal clásica de la Arquitectura Hexagonal**, sino una **versión moderna orientada a módulos verticales** con **Puertos y Adaptadores**, lo que mejora:
 
-El proyecto utiliza **OpenAPI 3.0** para documentar todos los endpoints de la API REST.
+- Escalabilidad modular  
+- Independencia de features  
+- Aislamiento de cambios  
+- Capacidad de evolución continua  
 
-**Ubicación:** `src/main/resources/api.yml`
-
-**Principios de Documentación:**
-
-1. **Completitud**: Documentar todos los endpoints con:
-   - Descripción clara del propósito
-   - Parámetros de entrada con validaciones
-   - Posibles respuestas (éxito y errores)
-   - Ejemplos de uso
-
-2. **Estructura OpenAPI**:
-   - `paths`: Definición de endpoints por ruta
-   - `components/schemas`: Modelos de datos reutilizables
-   - `components/parameters`: Parámetros compartidos
-   - Tags para agrupar endpoints relacionados
-
-3. **Schemas Documentados**:
-   - **Request DTOs**: Validaciones, longitudes, patrones
-   - **Response DTOs**: Estructura de respuesta exitosa
-   - **ErrorResponse**: Formato estándar de errores
-   - **Enums**: Valores permitidos con descripciones
-
-4. **Códigos de Estado HTTP**:
-   - `200`: Operación exitosa (GET, PUT, PATCH)
-   - `201`: Recurso creado (POST)
-   - `204`: Sin contenido (DELETE exitoso)
-   - `400`: Error de validación o regla de negocio
-   - `404`: Recurso no encontrado
-
-5. **Mantenimiento**:
-   - Actualizar `api.yml` al agregar/modificar endpoints
-   - Sincronizar con cambios en DTOs y validaciones
-   - Incluir ejemplos representativos
-
-**Visualización:**
-- Importar `api.yml` en Swagger Editor: https://editor.swagger.io/
-- Usar herramientas como Postman para importar la colección
-
----
-
-## 🔄 Versionamiento y Evolución
-
-- Toda modificación arquitectónica significativa debe documentarse en este archivo.
-- Las **decisiones de arquitectura (ADR)** deben almacenarse en el directorio `/docs/adr/`.
-- Las revisiones técnicas deben realizarse periódicamente para asegurar la adherencia a los principios.
-- Los componentes de infraestructura deben poder reemplazarse sin impacto en la capa de dominio.
-
----
-
-## 🧩 Evaluación de Calidad Arquitectónica
-
-- **Mantenibilidad:** facilidad para agregar nuevos casos de uso sin modificar el núcleo.
-- **Escalabilidad:** facilidad para agregar nuevos adaptadores o tecnologías.
-- **Aislamiento:** capacidad para probar el dominio sin infraestructura.
-- **Simplicidad:** preferir claridad sobre complejidad innecesaria.
-- **Trazabilidad:** cada decisión debe poder justificarse mediante principios y patrones definidos.
+Cada módulo (slice) puede evolucionar con sus propias dependencias, puertos y adaptadores, sin romper otros módulos.
 
 ---
 
 ## 📚 Referencias
 
-- *“Hexagonal Architecture”* — Alistair Cockburn
-- *“Clean Architecture”* — Robert C. Martin
-- *“Implementing Domain-Driven Design”* — Vaughn Vernon
-- *“Patterns of Enterprise Application Architecture”* — Martin Fowler
+- *“Ports and Adapters Architecture”* — Alistair Cockburn  
+- *“Clean Architecture”* — Robert C. Martin  
+- *“Implementing Domain-Driven Design”* — Vaughn Vernon  
+- *“Vertical Slice Architecture”* — Jimmy Bogard  
+- *“Patterns of Enterprise Application Architecture”* — Martin Fowler  
 
 ---
 
