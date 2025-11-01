@@ -14,9 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/{tournamentId}/teams")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TeamController {
 
     private final CreateTeamUseCase createTeamUseCase;
@@ -31,4 +34,31 @@ public class TeamController {
         Team team = createTeamUseCase.create(teamMapper.toCreateCommand(tournamentId, request));
         return ResponseEntity.status(HttpStatus.CREATED).body(teamMapper.toResponse(team));
     }
+
+    @GetMapping("/{teamId}")
+    public ResponseEntity<TeamResponseDTO> getById(@PathVariable Long teamId) {
+        return getTeamUseCase.getById(teamId)
+                .map(team -> ResponseEntity.ok(teamMapper.toResponse(team)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TeamResponseDTO>> getAllOrderByNameAsc() {
+        List<Team> teams = getTeamUseCase.getAllByOrderByNameAsc();
+        return ResponseEntity.ok(teamMapper.toResponseList(teams));
+    }
+
+    @PutMapping("/{teamId}")
+    public ResponseEntity<TeamResponseDTO> update(@PathVariable Long teamId,
+                                                      @Valid @RequestBody TeamRequestDTO request) {
+        Team team = updateTeamUseCase.update(teamMapper.toUpdateCommand(teamId, request));
+        return ResponseEntity.ok(teamMapper.toResponse(team));
+    }
+
+    @DeleteMapping("/{teamId}")
+    public ResponseEntity<Void> delete(@PathVariable Long teamId) {
+        deleteTeamUseCase.delete(teamId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

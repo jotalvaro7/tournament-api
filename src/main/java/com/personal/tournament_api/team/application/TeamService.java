@@ -42,10 +42,10 @@ public class TeamService implements
     }
 
     @Override
-    public Team update(Long id, UpdateTeamCommand command) {
-        log.info("Updating team with id: {}", id);
+    public Team update(UpdateTeamCommand command) {
+        log.info("Updating team with id: {}", command.id());
         teamDomainService.validateUniqueNameForUpdate(command.name(), command.id(), teamRepository);
-        Team teamFromDb = teamRepository.findById(id)
+        Team teamFromDb = teamRepository.findById(command.id())
                 .orElseThrow(() -> new TeamNotFoundException(command.id()));
         teamFromDb.updateDetails(command.name(), command.coach());
         teamRepository.save(teamFromDb);
@@ -62,9 +62,9 @@ public class TeamService implements
 
     @Override
     @Transactional(readOnly = true)
-    public List<Team> getAll() {
+    public List<Team> getAllByOrderByNameAsc() {
         log.info("Fetching all teams");
-        return teamRepository.findAll();
+        return teamRepository.findAllByOrderByNameAsc();
     }
 
     @Override

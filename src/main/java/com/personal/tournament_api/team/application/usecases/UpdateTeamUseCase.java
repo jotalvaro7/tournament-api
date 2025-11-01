@@ -4,7 +4,7 @@ import com.personal.tournament_api.team.domain.model.Team;
 
 public interface UpdateTeamUseCase {
 
-    Team update(Long id, UpdateTeamCommand command);
+    Team update(UpdateTeamCommand command);
 
     record UpdateTeamCommand(
             Long id,
