@@ -32,8 +32,8 @@ public class TeamJpaAdapter implements TeamRepository {
     }
 
     @Override
-    public List<Team> findAll() {
-        List<TeamEntity> entities = teamJpaRepository.findAll();
+    public List<Team> findAllByOrderByNameAsc() {
+        List<TeamEntity> entities = teamJpaRepository.findAllByOrderByNameAsc();
         return mapper.toDomainList(entities);
     }
 
