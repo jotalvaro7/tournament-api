@@ -12,13 +12,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/teams")
+@RequestMapping("/{tournamentId}/teams")
 @RequiredArgsConstructor
 public class TeamController {
 
@@ -29,8 +26,9 @@ public class TeamController {
     private final TeamMapper teamMapper;
 
     @PostMapping
-    public ResponseEntity<TeamResponseDTO> create(@Valid @RequestBody TeamRequestDTO request) {
-        Team team = createTeamUseCase.create(teamMapper.toCreateCommand(request));
+    public ResponseEntity<TeamResponseDTO> create(@PathVariable Long tournamentId,
+                                                  @Valid @RequestBody TeamRequestDTO request) {
+        Team team = createTeamUseCase.create(teamMapper.toCreateCommand(tournamentId, request));
         return ResponseEntity.status(HttpStatus.CREATED).body(teamMapper.toResponse(team));
     }
 }

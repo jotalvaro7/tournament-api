@@ -1,7 +1,6 @@
 package com.personal.tournament_api.team.infrastructure.adapters.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record TeamRequestDTO (
@@ -10,7 +9,5 @@ public record TeamRequestDTO (
     String name,
     @NotBlank(message = "Coach name is required")
     @Size(min = 3, max = 100, message = "Coach name must be between 3 and 100 characters")
-    String coach,
-    @NotNull(message = "Tournament ID is required")
-    Long tournamentId
+    String coach
 ) {}
