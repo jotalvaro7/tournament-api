@@ -13,6 +13,8 @@ servers:
 tags:
   - name: Tournaments
     description: Tournament management endpoints
+  - name: Teams
+    description: Team management endpoints
 
 paths:
   /api/tournaments:
@@ -226,12 +228,140 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/teams:
+    get:
+      tags:
+        - Teams
+      summary: Get all teams
+      description: Retrieve a list of all teams
+      operationId: getAllTeams
+      responses:
+        '200':
+          description: List of teams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+
+    post:
+      tags:
+        - Teams
+      summary: Create a new team
+      description: Create a new team with name and country
+      operationId: createTeam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamRequest'
+      responses:
+        '201':
+          description: Team created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '400':
+          description: Invalid request body or duplicate team name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/teams/{id}:
+    get:
+      tags:
+        - Teams
+      summary: Get team by ID
+      description: Retrieve a specific team by its ID
+      operationId: getTeamById
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: Team retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '404':
+          description: Team not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Teams
+      summary: Update team
+      description: Update an existing team's name and country
+      operationId: updateTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamRequest'
+      responses:
+        '200':
+          description: Team updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+        '400':
+          description: Invalid request body or duplicate team name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Team not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Teams
+      summary: Delete team
+      description: Delete a team
+      operationId: deleteTeam
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      responses:
+        '204':
+          description: Team deleted successfully
+        '404':
+          description: Team not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   parameters:
     TournamentId:
       name: id
       in: path
       description: Tournament unique identifier
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    TeamId:
+      name: id
+      in: path
+      description: Team unique identifier
       required: true
       schema:
         type: integer
@@ -290,6 +420,42 @@ components:
         - IN_PROGRESS: Tournament has started
         - COMPLETED: Tournament has finished
         - CANCELLED: Tournament was cancelled (can be cancelled from any state except COMPLETED)
+
+    TeamRequest:
+      type: object
+      required:
+        - name
+        - country
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+          description: Team name (must be unique)
+          example: Real Madrid
+        country:
+          type: string
+          minLength: 3
+          maxLength: 100
+          description: Team country
+          example: Spain
+
+    TeamResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Team unique identifier
+          example: 1
+        name:
+          type: string
+          description: Team name
+          example: Real Madrid
+        country:
+          type: string
+          description: Team country
+          example: Spain
 
     ErrorResponse:
       type: object
