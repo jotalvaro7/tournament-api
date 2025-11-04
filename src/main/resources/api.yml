@@ -60,7 +60,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/tournaments/{id}:
+  /api/tournaments/{tournamentId}:
     get:
       tags:
         - Tournaments
@@ -141,7 +141,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/tournaments/{id}/start:
+  /api/tournaments/{tournamentId}/start:
     patch:
       tags:
         - Tournaments
@@ -170,7 +170,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/tournaments/{id}/end:
+  /api/tournaments/{tournamentId}/end:
     patch:
       tags:
         - Tournaments
@@ -199,7 +199,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/tournaments/{id}/cancel:
+  /api/tournaments/{tournamentId}/cancel:
     patch:
       tags:
         - Tournaments
@@ -228,13 +228,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/teams:
+  /{tournamentId}/teams:
     get:
       tags:
         - Teams
-      summary: Get all teams
-      description: Retrieve a list of all teams
+      summary: Get all teams in a tournament
+      description: Retrieve a list of all teams participating in a specific tournament
       operationId: getAllTeams
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
       responses:
         '200':
           description: List of teams retrieved successfully
@@ -244,13 +246,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TeamResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
     post:
       tags:
         - Teams
-      summary: Create a new team
-      description: Create a new team with name and country
+      summary: Create a new team in a tournament
+      description: Create a new team with name and coach for a specific tournament
       operationId: createTeam
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
       requestBody:
         required: true
         content:
@@ -270,15 +280,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /api/teams/{id}:
+  /{tournamentId}/teams/{teamId}:
     get:
       tags:
         - Teams
       summary: Get team by ID
-      description: Retrieve a specific team by its ID
+      description: Retrieve a specific team by its ID in a tournament
       operationId: getTeamById
       parameters:
+        - $ref: '#/components/parameters/TournamentId'
         - $ref: '#/components/parameters/TeamId'
       responses:
         '200':
@@ -288,7 +305,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/TeamResponse'
         '404':
-          description: Team not found
+          description: Tournament or team not found
           content:
             application/json:
               schema:
@@ -298,9 +315,10 @@ paths:
       tags:
         - Teams
       summary: Update team
-      description: Update an existing team's name and country
+      description: Update an existing team's name and coach in a tournament
       operationId: updateTeam
       parameters:
+        - $ref: '#/components/parameters/TournamentId'
         - $ref: '#/components/parameters/TeamId'
       requestBody:
         required: true
@@ -322,7 +340,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Team not found
+          description: Tournament or team not found
           content:
             application/json:
               schema:
@@ -332,15 +350,16 @@ paths:
       tags:
         - Teams
       summary: Delete team
-      description: Delete a team
+      description: Delete a team from a tournament
       operationId: deleteTeam
       parameters:
+        - $ref: '#/components/parameters/TournamentId'
         - $ref: '#/components/parameters/TeamId'
       responses:
         '204':
           description: Team deleted successfully
         '404':
-          description: Team not found
+          description: Tournament or team not found
           content:
             application/json:
               schema:
@@ -349,7 +368,7 @@ paths:
 components:
   parameters:
     TournamentId:
-      name: id
+      name: tournamentId
       in: path
       description: Tournament unique identifier
       required: true
@@ -359,7 +378,7 @@ components:
         example: 1
 
     TeamId:
-      name: id
+      name: teamId
       in: path
       description: Team unique identifier
       required: true
@@ -425,20 +444,20 @@ components:
       type: object
       required:
         - name
-        - country
+        - coach
       properties:
         name:
           type: string
           minLength: 3
           maxLength: 100
-          description: Team name (must be unique)
+          description: Team name (must be unique within tournament)
           example: Real Madrid
-        country:
+        coach:
           type: string
           minLength: 3
           maxLength: 100
-          description: Team country
-          example: Spain
+          description: Team coach name
+          example: Carlo Ancelotti
 
     TeamResponse:
       type: object
@@ -452,10 +471,47 @@ components:
           type: string
           description: Team name
           example: Real Madrid
-        country:
+        coach:
           type: string
-          description: Team country
-          example: Spain
+          description: Team coach name
+          example: Carlo Ancelotti
+        tournamentId:
+          type: integer
+          format: int64
+          description: Tournament identifier
+          example: 1
+        points:
+          type: integer
+          description: Total points earned
+          example: 9
+        matchesPlayed:
+          type: integer
+          description: Number of matches played
+          example: 3
+        matchesWin:
+          type: integer
+          description: Number of victories
+          example: 3
+        matchesDraw:
+          type: integer
+          description: Number of draws
+          example: 0
+        matchesLost:
+          type: integer
+          description: Number of defeats
+          example: 0
+        goalsFor:
+          type: integer
+          description: Goals scored by the team
+          example: 8
+        goalsAgainst:
+          type: integer
+          description: Goals conceded by the team
+          example: 2
+        goalDifference:
+          type: integer
+          description: Goal difference (goalsFor - goalsAgainst)
+          example: 6
 
     ErrorResponse:
       type: object

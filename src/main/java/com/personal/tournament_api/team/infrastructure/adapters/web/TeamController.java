@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/{tournamentId}/teams")
+@RequestMapping("/tournaments/{tournamentId}/teams")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class TeamController {
 
     private final CreateTeamUseCase createTeamUseCase;

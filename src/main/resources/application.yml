@@ -1,7 +1,7 @@
 server:
   port: 7070
   servlet:
-    context-path: /api/tournaments
+    context-path: /api
 
 spring:
   application:
