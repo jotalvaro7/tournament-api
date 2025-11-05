@@ -206,6 +206,19 @@ Add Player entity, repository port, and REST adapter for player creation.
 ❌ update code
 ```
 
+**IMPORTANTE - Formato de commits:**
+- ❌ **NO incluir** mensajes de herramientas de IA (ej: "Generated with Claude Code")
+- ❌ **NO incluir** co-autoría de herramientas (ej: "Co-Authored-By: Claude")
+- ✅ Los commits deben reflejar **únicamente el trabajo del desarrollador humano**
+- ✅ Mantener commits limpios, profesionales y concisos
+
+**Ejemplo de commit limpio:**
+```
+feat: implement player registration use case
+
+Add Player entity, repository port, and REST adapter for player creation.
+```
+
 ---
 
 ## 🧭 Evolución Arquitectónica
