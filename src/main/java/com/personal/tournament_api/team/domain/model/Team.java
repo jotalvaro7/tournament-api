@@ -183,4 +183,22 @@ public class Team {
     public int hashCode() {
         return Objects.hash(id, name, coach, tournamentId, points, matchesPlayed, matchesWin, matchesDraw, matchesLost, goalsFor, goalsAgainst, goalDifference);
     }
+
+    @Override
+    public String toString() {
+        return "Team{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", coach='" + coach + '\'' +
+                ", tournamentId=" + tournamentId +
+                ", points=" + points +
+                ", matchesPlayed=" + matchesPlayed +
+                ", matchesWin=" + matchesWin +
+                ", matchesDraw=" + matchesDraw +
+                ", matchesLost=" + matchesLost +
+                ", goalsFor=" + goalsFor +
+                ", goalsAgainst=" + goalsAgainst +
+                ", goalDifference=" + goalDifference +
+                '}';
+    }
 }

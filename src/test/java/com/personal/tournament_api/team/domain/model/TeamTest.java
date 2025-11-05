@@ -742,5 +742,151 @@ class TeamTest {
             // When & Then
             assertNotEquals(team1, team2);
         }
+
+        @Test
+        @DisplayName("Should be equal to itself (reflexivity)")
+        void shouldBeEqualToItself() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+
+            // When & Then
+            assertEquals(team, team);
+        }
+
+        @Test
+        @DisplayName("Should not be equal when comparing with different class")
+        void shouldNotBeEqualWhenComparingWithDifferentClass() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Object other = new Object();
+
+            // When & Then
+            assertNotEquals(team, other);
+        }
+
+        @Test
+        @DisplayName("Should return consistent hashCode on multiple calls")
+        void shouldReturnConsistentHashCode() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+
+            // When
+            int hashCode1 = team.hashCode();
+            int hashCode2 = team.hashCode();
+
+            // Then
+            assertEquals(hashCode1, hashCode2);
+        }
+
+        @Test
+        @DisplayName("Should not be equal when coaches are different")
+        void shouldNotBeEqualWhenCoachesAreDifferent() {
+            // Given
+            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team2 = new Team(1L, "Real Madrid", "Zinedine Zidane", 10L);
+
+            // When & Then
+            assertNotEquals(team1, team2);
+        }
+
+        @Test
+        @DisplayName("Should not be equal when tournament IDs are different")
+        void shouldNotBeEqualWhenTournamentIdsAreDifferent() {
+            // Given
+            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team2 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 20L);
+
+            // When & Then
+            assertNotEquals(team1, team2);
+        }
+
+        @Test
+        @DisplayName("Should have different hashCode when teams are not equal")
+        void shouldHaveDifferentHashCodeWhenTeamsAreNotEqual() {
+            // Given
+            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team2 = new Team(2L, "Barcelona", "Xavi Hernandez", 10L);
+
+            // When & Then
+            assertNotEquals(team1.hashCode(), team2.hashCode());
+        }
+    }
+
+    @Nested
+    @DisplayName("ToString Tests")
+    class ToStringTests {
+
+        @Test
+        @DisplayName("Should return string representation with all fields")
+        void shouldReturnStringWithAllFields() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+
+            // When
+            String result = team.toString();
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.contains("id=1"));
+            assertTrue(result.contains("name='Real Madrid'"));
+            assertTrue(result.contains("coach='Carlo Ancelotti'"));
+            assertTrue(result.contains("tournamentId=10"));
+            assertTrue(result.contains("points=0"));
+            assertTrue(result.contains("matchesPlayed=0"));
+            assertTrue(result.contains("matchesWin=0"));
+            assertTrue(result.contains("matchesDraw=0"));
+            assertTrue(result.contains("matchesLost=0"));
+            assertTrue(result.contains("goalsFor=0"));
+            assertTrue(result.contains("goalsAgainst=0"));
+            assertTrue(result.contains("goalDifference=0"));
+        }
+
+        @Test
+        @DisplayName("Should return string representation with updated statistics")
+        void shouldReturnStringWithUpdatedStatistics() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            team.registerVictory(3, 1);
+
+            // When
+            String result = team.toString();
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.contains("points=3"));
+            assertTrue(result.contains("matchesPlayed=1"));
+            assertTrue(result.contains("matchesWin=1"));
+            assertTrue(result.contains("goalsFor=3"));
+            assertTrue(result.contains("goalsAgainst=1"));
+            assertTrue(result.contains("goalDifference=2"));
+        }
+
+        @Test
+        @DisplayName("Should return string starting with class name")
+        void shouldReturnStringStartingWithClassName() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+
+            // When
+            String result = team.toString();
+
+            // Then
+            assertTrue(result.startsWith("Team{"));
+            assertTrue(result.endsWith("}"));
+        }
+
+        @Test
+        @DisplayName("Should return consistent string on multiple calls")
+        void shouldReturnConsistentStringOnMultipleCalls() {
+            // Given
+            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+
+            // When
+            String result1 = team.toString();
+            String result2 = team.toString();
+
+            // Then
+            assertEquals(result1, result2);
+        }
     }
 }
