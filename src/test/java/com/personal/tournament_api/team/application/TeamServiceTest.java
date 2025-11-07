@@ -23,7 +23,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TeamService Unit Tests")
@@ -201,10 +206,10 @@ class TeamServiceTest {
             Team team3 = new Team(3L, "Sevilla", "Jose Luis Mendilibar", 1L);
             List<Team> teams = Arrays.asList(team1, team2, team3);
 
-            when(teamRepository.findAllByOrderByNameAsc()).thenReturn(teams);
+            when(teamRepository.findAllByTournamentIdOrderByNameAsc(1L)).thenReturn(teams);
 
             // When
-            List<Team> result = teamService.getAllByOrderByNameAsc();
+            List<Team> result = teamService.getAllByTournamentIdOrderByNameAsc(1L);
 
             // Then
             assertNotNull(result);
@@ -213,23 +218,23 @@ class TeamServiceTest {
             assertEquals("Real Madrid", result.get(1).getName());
             assertEquals("Sevilla", result.get(2).getName());
 
-            verify(teamRepository, times(1)).findAllByOrderByNameAsc();
+            verify(teamRepository, times(1)).findAllByTournamentIdOrderByNameAsc(1L);
         }
 
         @Test
         @DisplayName("Should return empty list when no teams exist")
         void shouldReturnEmptyListWhenNoTeamsExist() {
             // Given
-            when(teamRepository.findAllByOrderByNameAsc()).thenReturn(List.of());
+            when(teamRepository.findAllByTournamentIdOrderByNameAsc(1L)).thenReturn(List.of());
 
             // When
-            List<Team> result = teamService.getAllByOrderByNameAsc();
+            List<Team> result = teamService.getAllByTournamentIdOrderByNameAsc(1L);
 
             // Then
             assertNotNull(result);
             assertTrue(result.isEmpty());
 
-            verify(teamRepository, times(1)).findAllByOrderByNameAsc();
+            verify(teamRepository, times(1)).findAllByTournamentIdOrderByNameAsc(1L);
         }
     }
 

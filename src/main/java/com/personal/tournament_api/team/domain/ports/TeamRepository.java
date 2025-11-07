@@ -13,7 +13,11 @@ public interface TeamRepository {
 
     List<Team> findAllByOrderByNameAsc();
 
+    List<Team> findAllByTournamentIdOrderByNameAsc(Long tournamentId);
+
     void deleteById(Long id);
+
+    void deleteByTournamentId(Long tournamentId);
 
     boolean existsByName(String name);
 

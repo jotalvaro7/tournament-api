@@ -1,5 +1,6 @@
 package com.personal.tournament_api.tournament.application;
 
+import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import com.personal.tournament_api.tournament.application.usecases.*;
 import com.personal.tournament_api.tournament.domain.TournamentDomainService;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
@@ -26,6 +27,7 @@ public class TournamentService implements
 
     private final TournamentRepository tournamentRepository;
     private final TournamentDomainService tournamentDomainService;
+    private final TeamRepository teamRepository;
 
     @Override
     public Tournament create(CreateTournamentCommand command) {
@@ -74,6 +76,8 @@ public class TournamentService implements
         Tournament tournament = tournamentRepository.findById(tournamentId)
                 .orElseThrow(() -> new TournamentNotFoundException(tournamentId));
         tournament.validateIfCanBeDeleted();
+
+        teamRepository.deleteByTournamentId(tournamentId);
         tournamentRepository.deleteById(tournamentId);
     }
 

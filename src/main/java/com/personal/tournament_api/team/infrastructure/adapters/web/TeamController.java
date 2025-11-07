@@ -42,8 +42,8 @@ public class TeamController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TeamResponseDTO>> getAllOrderByNameAsc() {
-        List<Team> teams = getTeamUseCase.getAllByOrderByNameAsc();
+    public ResponseEntity<List<TeamResponseDTO>> getAllOrderByNameAsc(@PathVariable Long tournamentId) {
+        List<Team> teams = getTeamUseCase.getAllByTournamentIdOrderByNameAsc(tournamentId);
         return ResponseEntity.ok(teamMapper.toResponseList(teams));
     }
 

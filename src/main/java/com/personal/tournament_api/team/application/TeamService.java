@@ -62,9 +62,9 @@ public class TeamService implements
 
     @Override
     @Transactional(readOnly = true)
-    public List<Team> getAllByOrderByNameAsc() {
-        log.info("Fetching all teams");
-        return teamRepository.findAllByOrderByNameAsc();
+    public List<Team> getAllByTournamentIdOrderByNameAsc(Long tournamentId) {
+        log.info("Fetching all teams for tournament with id: {}", tournamentId);
+        return teamRepository.findAllByTournamentIdOrderByNameAsc(tournamentId);
     }
 
     @Override
