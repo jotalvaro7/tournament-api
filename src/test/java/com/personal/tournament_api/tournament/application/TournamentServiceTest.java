@@ -1,5 +1,6 @@
 package com.personal.tournament_api.tournament.application;
 
+import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import com.personal.tournament_api.tournament.application.usecases.CreateTournamentUseCase.CreateTournamentCommand;
 import com.personal.tournament_api.tournament.application.usecases.UpdateTournamentUseCase.UpdateTournamentCommand;
 import com.personal.tournament_api.tournament.domain.TournamentDomainService;
@@ -7,7 +8,6 @@ import com.personal.tournament_api.tournament.domain.enums.StatusTournament;
 import com.personal.tournament_api.tournament.domain.exceptions.*;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("Tournament Service Unit Tests")
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +40,9 @@ class TournamentServiceTest {
 
     @Mock
     private TournamentDomainService tournamentDomainService;
+
+    @Mock
+    private TeamRepository teamRepository;
 
     @InjectMocks
     private TournamentService tournamentService;
@@ -397,6 +406,7 @@ class TournamentServiceTest {
             Tournament tournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
             // When
@@ -404,6 +414,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
 
@@ -417,6 +428,7 @@ class TournamentServiceTest {
             tournament.endTournament();
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
             // When
@@ -424,6 +436,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
 
@@ -436,6 +449,7 @@ class TournamentServiceTest {
             tournament.cancelTournament();
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
             // When
@@ -443,6 +457,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
 
@@ -459,6 +474,7 @@ class TournamentServiceTest {
             });
 
             verify(tournamentRepository).findById(tournamentId);
+            verify(teamRepository, never()).deleteByTournamentId(anyLong());
             verify(tournamentRepository, never()).deleteById(anyLong());
         }
 
@@ -478,6 +494,7 @@ class TournamentServiceTest {
             });
 
             verify(tournamentRepository).findById(tournamentId);
+            verify(teamRepository, never()).deleteByTournamentId(anyLong());
             verify(tournamentRepository, never()).deleteById(anyLong());
         }
     }

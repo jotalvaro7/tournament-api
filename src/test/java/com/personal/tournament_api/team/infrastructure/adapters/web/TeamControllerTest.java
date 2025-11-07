@@ -27,9 +27,17 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TeamController.class)
 @DisplayName("TeamController Unit Tests")
@@ -248,7 +256,7 @@ class TeamControllerTest {
             TeamResponseDTO response3 = new TeamResponseDTO(3L, "Sevilla", "Jose Luis Mendilibar", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
             List<TeamResponseDTO> responses = Arrays.asList(response1, response2, response3);
 
-            when(getTeamUseCase.getAllByOrderByNameAsc()).thenReturn(teams);
+            when(getTeamUseCase.getAllByTournamentIdOrderByNameAsc(1L)).thenReturn(teams);
             when(teamMapper.toResponseList(teams)).thenReturn(responses);
 
             mockMvc.perform(get("/tournaments/1/teams")
@@ -259,7 +267,7 @@ class TeamControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Real Madrid"))
                 .andExpect(jsonPath("$[2].name").value("Sevilla"));
 
-            verify(getTeamUseCase, times(1)).getAllByOrderByNameAsc();
+            verify(getTeamUseCase, times(1)).getAllByTournamentIdOrderByNameAsc(1L);
             verify(teamMapper, times(1)).toResponseList(teams);
         }
 
@@ -267,7 +275,7 @@ class TeamControllerTest {
         @DisplayName("Should return empty list when no teams exist")
         void shouldReturnEmptyListWhenNoTeamsExist() throws Exception {
             List<Team> emptyList = Arrays.asList();
-            when(getTeamUseCase.getAllByOrderByNameAsc()).thenReturn(emptyList);
+            when(getTeamUseCase.getAllByTournamentIdOrderByNameAsc(1L)).thenReturn(emptyList);
             when(teamMapper.toResponseList(emptyList)).thenReturn(Arrays.asList());
 
             mockMvc.perform(get("/tournaments/1/teams")
@@ -275,7 +283,7 @@ class TeamControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
 
-            verify(getTeamUseCase, times(1)).getAllByOrderByNameAsc();
+            verify(getTeamUseCase, times(1)).getAllByTournamentIdOrderByNameAsc(1L);
         }
     }
 
