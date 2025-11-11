@@ -6,6 +6,7 @@ import com.personal.tournament_api.match.infrastructure.adapters.persistence.ent
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -21,7 +22,7 @@ class MatchPersistenceMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = new MatchPersistenceMapperImpl();
+        mapper = Mappers.getMapper(MatchPersistenceMapper.class);
     }
 
     @Test
