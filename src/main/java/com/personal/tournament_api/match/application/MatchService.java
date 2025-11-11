@@ -4,6 +4,10 @@ import com.personal.tournament_api.match.application.usecases.*;
 import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundException;
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.match.domain.services.MatchResultService;
+import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
+import com.personal.tournament_api.team.domain.model.Team;
+import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,8 @@ public class MatchService implements
         PostponeMatchUseCase {
 
     private final MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final MatchResultService matchResultService;
 
     @Override
     public Match create(CreateMatchCommand command) {
@@ -66,12 +72,27 @@ public class MatchService implements
         Match match = matchRepository.findById(command.matchId())
                 .orElseThrow(() -> new MatchNotFoundException(command.matchId()));
 
-        match.setMatchResult(command.homeTeamScore(), command.awayTeamScore());
-        Match savedMatch = matchRepository.save(match);
+        Team homeTeam = teamRepository.findById(match.getHomeTeamId())
+                .orElseThrow(() -> new TeamNotFoundException(match.getHomeTeamId()));
+        Team awayTeam = teamRepository.findById(match.getAwayTeamId())
+                .orElseThrow(() -> new TeamNotFoundException(match.getAwayTeamId()));
 
-        log.info("Match result set with id: {}. Score: {} - {}",
-                savedMatch.getId(), command.homeTeamScore(), command.awayTeamScore());
-        return savedMatch;
+        var outcome = matchResultService.registerResult(match, homeTeam, awayTeam, command.homeTeamScore(), command.awayTeamScore());
+
+        matchRepository.save(match);
+        teamRepository.save(homeTeam);
+        teamRepository.save(awayTeam);
+
+        if (outcome.isCorrection()) {
+            log.warn("Match {} result CORRECTED from {}-{} to {}-{}. Teams statistics updated.",
+                    match.getId(), outcome.previousHomeScore(), outcome.previousAwayScore(),
+                    command.homeTeamScore(), command.awayTeamScore());
+        } else {
+            log.info("Match {} result SET to {}-{}. Teams statistics updated.",
+                    match.getId(), command.homeTeamScore(), command.awayTeamScore());
+        }
+
+        return match;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Team {
     private int goalsAgainst;
     private int goalDifference;
 
-
+    // Constructor for create a new Team (with stats at 0)
     public Team(Long id, String name, String coach, Long tournamentId) {
         this.id = id;
         this.name = name;
@@ -33,6 +33,24 @@ public class Team {
         this.goalsAgainst = 0;
         this.goalDifference = 0;
         validate();
+    }
+
+    // Constructor to REBUILD from persistence (with all statistics)
+    public Team(Long id, String name, String coach, Long tournamentId,
+                int points, int matchesPlayed, int matchesWin, int matchesDraw,
+                int matchesLost, int goalsFor, int goalsAgainst, int goalDifference) {
+        this.id = id;
+        this.name = name;
+        this.coach = coach;
+        this.tournamentId = tournamentId;
+        this.points = points;
+        this.matchesPlayed = matchesPlayed;
+        this.matchesWin = matchesWin;
+        this.matchesDraw = matchesDraw;
+        this.matchesLost = matchesLost;
+        this.goalsFor = goalsFor;
+        this.goalsAgainst = goalsAgainst;
+        this.goalDifference = goalDifference;
     }
 
     // --- Domain Rules ---
@@ -79,12 +97,22 @@ public class Team {
         validateConsistency();
     }
 
+    public void reverseMatchResult(int goalsFor, int goalsAgainst) {
+        validateGoals(goalsFor, goalsAgainst);
+        if (goalsFor > goalsAgainst) {
+            reverseVictory(goalsFor, goalsAgainst);
+        } else if (goalsFor == goalsAgainst) {
+            reverseDraw(goalsFor, goalsAgainst);
+        } else {
+            reverseDefeat(goalsFor, goalsAgainst);
+        }
+    }
+
     public void registerVictory(int goalsFor, int goalsAgainst) {
         validateGoals(goalsFor, goalsAgainst);
         applyMatchStats(goalsFor, goalsAgainst);
         this.matchesWin++;
         this.points += 3;
-
     }
 
     public void registerDraw(int goalsFor, int goalsAgainst) {
@@ -98,6 +126,23 @@ public class Team {
         validateGoals(goalsFor, goalsAgainst);
         applyMatchStats(goalsFor, goalsAgainst);
         this.matchesLost++;
+    }
+
+    private void reverseVictory(int goalsFor, int goalsAgainst) {
+        reverseMatchStats(goalsFor, goalsAgainst);
+        this.matchesWin--;
+        this.points -= 3;
+    }
+
+    private void reverseDraw(int goalsFor, int goalsAgainst) {
+        reverseMatchStats(goalsFor, goalsAgainst);
+        this.matchesDraw--;
+        this.points -= 1;
+    }
+
+    private void reverseDefeat(int goalsFor, int goalsAgainst) {
+        reverseMatchStats(goalsFor, goalsAgainst);
+        this.matchesLost--;
     }
 
     private void validateGoals(int goalsFor, int goalsAgainst){
@@ -121,6 +166,13 @@ public class Team {
         this.goalsAgainst += goalsAgainst;
         this.goalDifference = this.goalsFor - this.goalsAgainst;
         this.matchesPlayed++;
+    }
+
+    private void reverseMatchStats(int goalsFor, int goalsAgainst) {
+        this.goalsFor -= goalsFor;
+        this.goalsAgainst -= goalsAgainst;
+        this.goalDifference = this.goalsFor - this.goalsAgainst;
+        this.matchesPlayed--;
     }
 
     // Getters

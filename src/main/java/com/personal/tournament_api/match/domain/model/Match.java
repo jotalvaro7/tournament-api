@@ -86,14 +86,23 @@ public class Match {
         this.status = MatchStatus.POSTPONED;
     }
 
-    public void setMatchResult(int homeScore, int awayScore) {
+    public MatchResultOutcome setMatchResult(int homeScore, int awayScore) {
         if (status != MatchStatus.SCHEDULED && status != MatchStatus.FINISHED) {
             throw new InvalidMatchStatusTransitionException("Only scheduled or finished matches can have their result set");
         }
         validateScore(homeScore, awayScore);
+
+        boolean isCorrection = this.homeTeamScore != null && this.awayTeamScore != null;
+        Integer previousHomeScore = this.homeTeamScore;
+        Integer previousAwayScore = this.awayTeamScore;
+
         this.homeTeamScore = homeScore;
         this.awayTeamScore = awayScore;
         this.status = MatchStatus.FINISHED;
+
+        return isCorrection
+            ? MatchResultOutcome.correction(previousHomeScore, previousAwayScore)
+            : MatchResultOutcome.newResult();
     }
 
     public void updateMatchDetails(LocalDateTime matchDate, String field) {
