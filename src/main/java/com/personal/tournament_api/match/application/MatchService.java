@@ -3,6 +3,9 @@ package com.personal.tournament_api.match.application;
 import com.personal.tournament_api.match.application.usecases.*;
 import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundException;
 import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.model.MatchSearchCriteria;
+import com.personal.tournament_api.match.domain.model.Page;
+import com.personal.tournament_api.match.domain.model.PageRequest;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
@@ -128,6 +131,14 @@ public class MatchService implements
     public List<Match> getAllByTeamId(Long teamId) {
         log.info("Fetching all matches for team with id: {}", teamId);
         return matchRepository.findAllByTeamId(teamId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Match> getByTournamentIdWithFilters(Long tournamentId, MatchSearchCriteria criteria, PageRequest pageRequest) {
+        log.info("Fetching matches for tournament {} with filters: {} and pagination: {}",
+                tournamentId, criteria, pageRequest);
+        return matchRepository.findByTournamentIdWithFilters(tournamentId, criteria, pageRequest);
     }
 
     @Override

@@ -15,6 +15,8 @@ tags:
     description: Tournament management endpoints
   - name: Teams
     description: Team management endpoints
+  - name: Matches
+    description: Match management endpoints
 
 paths:
   /api/tournaments:
@@ -365,6 +367,279 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /tournaments/{tournamentId}/matches:
+    get:
+      tags:
+        - Matches
+      summary: Get matches in a tournament with filters and pagination
+      description: Retrieve a paginated list of matches in a specific tournament with optional filters by date and status
+      operationId: getAllMatches
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - name: specificDate
+          in: query
+          description: Filter matches by specific date (cannot be used with dateFrom/dateTo)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-11-15"
+        - name: dateFrom
+          in: query
+          description: Filter matches from this date (must be used with dateTo)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-11-15"
+        - name: dateTo
+          in: query
+          description: Filter matches until this date (must be used with dateFrom)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2025-11-20"
+        - name: status
+          in: query
+          description: Filter matches by status
+          required: false
+          schema:
+            $ref: '#/components/schemas/MatchStatus'
+        - name: page
+          in: query
+          description: Page number (zero-based)
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: size
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+            example: 15
+        - name: sortBy
+          in: query
+          description: Field to sort by
+          required: false
+          schema:
+            type: string
+            default: matchDate
+            example: matchDate
+        - name: direction
+          in: query
+          description: Sort direction
+          required: false
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+            example: ASC
+      responses:
+        '200':
+          description: Paginated list of matches retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageResponseMatch'
+        '400':
+          description: Invalid filter parameters (e.g., using specificDate with dateFrom/dateTo)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Matches
+      summary: Create a new match
+      description: Create a new match in a tournament
+      operationId: createMatch
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchRequest'
+      responses:
+        '201':
+          description: Match created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '400':
+          description: Invalid request body or business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tournaments/{tournamentId}/matches/{matchId}:
+    get:
+      tags:
+        - Matches
+      summary: Get match by ID
+      description: Retrieve a specific match by its ID
+      operationId: getMatchById
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        '200':
+          description: Match retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '404':
+          description: Tournament or match not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Matches
+      summary: Update match details
+      description: Update match date and field (cannot update finished matches)
+      operationId: updateMatch
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/MatchId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchRequest'
+      responses:
+        '200':
+          description: Match updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '400':
+          description: Invalid request body or cannot update finished match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament or match not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Matches
+      summary: Delete match
+      description: Delete a match from a tournament
+      operationId: deleteMatch
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        '204':
+          description: Match deleted successfully
+        '404':
+          description: Tournament or match not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tournaments/{tournamentId}/matches/{matchId}/result:
+    put:
+      tags:
+        - Matches
+      summary: Finish match and set result
+      description: Set the final score for a match and update team statistics
+      operationId: finishMatch
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/MatchId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinishMatchRequest'
+      responses:
+        '200':
+          description: Match result set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '400':
+          description: Invalid scores or business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament, match, or teams not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tournaments/{tournamentId}/matches/{matchId}/postpone:
+    post:
+      tags:
+        - Matches
+      summary: Postpone match
+      description: Change match status to POSTPONED (cannot postpone finished matches)
+      operationId: postponeMatch
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        '200':
+          description: Match postponed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchResponse'
+        '400':
+          description: Match cannot be postponed (already finished)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tournament or match not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   parameters:
     TournamentId:
@@ -381,6 +656,16 @@ components:
       name: teamId
       in: path
       description: Team unique identifier
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    MatchId:
+      name: matchId
+      in: path
+      description: Match unique identifier
       required: true
       schema:
         type: integer
@@ -512,6 +797,153 @@ components:
           type: integer
           description: Goal difference (goalsFor - goalsAgainst)
           example: 6
+
+    MatchRequest:
+      type: object
+      required:
+        - homeTeamId
+        - awayTeamId
+        - matchDate
+        - field
+      properties:
+        homeTeamId:
+          type: integer
+          format: int64
+          description: Home team unique identifier (must be positive)
+          example: 1
+        awayTeamId:
+          type: integer
+          format: int64
+          description: Away team unique identifier (must be positive and different from homeTeamId)
+          example: 2
+        matchDate:
+          type: string
+          format: date-time
+          description: Date and time when the match is scheduled
+          example: 2025-12-15T18:00:00
+        field:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Name of the field where the match is played
+          example: Estadio Santiago Bernabeu
+
+    FinishMatchRequest:
+      type: object
+      required:
+        - homeTeamScore
+        - awayTeamScore
+      properties:
+        homeTeamScore:
+          type: integer
+          minimum: 0
+          description: Goals scored by the home team (cannot be negative)
+          example: 3
+        awayTeamScore:
+          type: integer
+          minimum: 0
+          description: Goals scored by the away team (cannot be negative)
+          example: 1
+
+    MatchResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Match unique identifier
+          example: 1
+        tournamentId:
+          type: integer
+          format: int64
+          description: Tournament identifier
+          example: 1
+        homeTeamId:
+          type: integer
+          format: int64
+          description: Home team identifier
+          example: 1
+        awayTeamId:
+          type: integer
+          format: int64
+          description: Away team identifier
+          example: 2
+        homeTeamScore:
+          type: integer
+          nullable: true
+          description: Goals scored by the home team (null if match not finished)
+          example: 3
+        awayTeamScore:
+          type: integer
+          nullable: true
+          description: Goals scored by the away team (null if match not finished)
+          example: 1
+        matchDate:
+          type: string
+          format: date-time
+          description: Date and time when the match is scheduled
+          example: 2025-12-15T18:00:00
+        field:
+          type: string
+          description: Name of the field where the match is played
+          example: Estadio Santiago Bernabeu
+        status:
+          $ref: '#/components/schemas/MatchStatus'
+
+    MatchStatus:
+      type: string
+      enum:
+        - SCHEDULED
+        - FINISHED
+        - POSTPONED
+      description: |-
+        Match status lifecycle:
+        - SCHEDULED: Initial state when match is created
+        - FINISHED: Match has been completed with a result
+        - POSTPONED: Match has been postponed
+
+    PageResponseMatch:
+      type: object
+      description: Paginated response containing a list of matches
+      properties:
+        content:
+          type: array
+          description: List of matches in the current page
+          items:
+            $ref: '#/components/schemas/MatchResponse'
+        page:
+          type: integer
+          description: Current page number (zero-based)
+          example: 0
+        size:
+          type: integer
+          description: Number of items per page
+          example: 15
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of matches across all pages
+          example: 45
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 3
+        first:
+          type: boolean
+          description: Whether this is the first page
+          example: true
+        last:
+          type: boolean
+          description: Whether this is the last page
+          example: false
+        hasNext:
+          type: boolean
+          description: Whether there is a next page
+          example: true
+        hasPrevious:
+          type: boolean
+          description: Whether there is a previous page
+          example: false
 
     ErrorResponse:
       type: object

@@ -2,12 +2,13 @@ package com.personal.tournament_api.match.infrastructure.adapters.persistence.re
 
 import com.personal.tournament_api.match.infrastructure.adapters.persistence.entity.MatchEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface MatchJpaRepository extends JpaRepository<MatchEntity, Long> {
+public interface MatchJpaRepository extends JpaRepository<MatchEntity, Long>, JpaSpecificationExecutor<MatchEntity> {
 
     List<MatchEntity> findAllByTournamentId(Long tournamentId);
 

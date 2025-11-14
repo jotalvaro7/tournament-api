@@ -2,11 +2,11 @@ package com.personal.tournament_api.match.infrastructure.adapters.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.tournament_api.match.application.usecases.*;
-import com.personal.tournament_api.match.domain.model.Match;
-import com.personal.tournament_api.match.domain.model.MatchStatus;
+import com.personal.tournament_api.match.domain.model.*;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.FinishMatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchResponseDTO;
+import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchFilterBuilder;
 import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -60,6 +60,9 @@ class MatchControllerTest {
     @MockBean
     private MatchMapper matchMapper;
 
+    @MockBean
+    private MatchFilterBuilder matchFilterBuilder;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -96,6 +99,37 @@ class MatchControllerTest {
         createMatchCommand = new CreateMatchUseCase.CreateMatchCommand(10L, 1L, 2L, TEST_DATE, "Stadium A");
         updateMatchCommand = new UpdateMatchUseCase.UpdateMatchCommand(1L, TEST_DATE, "Stadium A");
         finishMatchCommand = new FinishMatchUseCase.FinishMatchCommand(1L, 3, 1);
+
+        // Configure default behavior for MatchFilterBuilder
+        when(matchFilterBuilder.buildSearchCriteria(any(), any(), any(), any()))
+                .thenAnswer(invocation -> {
+                    Object specificDate = invocation.getArgument(0);
+                    Object dateFrom = invocation.getArgument(1);
+                    Object dateTo = invocation.getArgument(2);
+                    MatchStatus status = invocation.getArgument(3);
+
+                    if (specificDate != null) {
+                        return MatchSearchCriteria.withSpecificDate((java.time.LocalDate) specificDate, status);
+                    } else if (dateFrom != null && dateTo != null) {
+                        return MatchSearchCriteria.withDateRange((java.time.LocalDate) dateFrom, (java.time.LocalDate) dateTo, status);
+                    } else if (status != null) {
+                        return MatchSearchCriteria.withStatus(status);
+                    } else {
+                        return MatchSearchCriteria.empty();
+                    }
+                });
+
+        when(matchFilterBuilder.buildPageRequest(anyInt(), anyInt(), anyString(), anyString()))
+                .thenAnswer(invocation -> {
+                    int page = invocation.getArgument(0);
+                    int size = invocation.getArgument(1);
+                    String sortBy = invocation.getArgument(2);
+                    String direction = invocation.getArgument(3);
+                    PageRequest.SortDirection sortDirection = "DESC".equalsIgnoreCase(direction)
+                            ? PageRequest.SortDirection.DESC
+                            : PageRequest.SortDirection.ASC;
+                    return PageRequest.of(page, size, sortBy, sortDirection);
+                });
     }
 
     @Nested
@@ -259,8 +293,8 @@ class MatchControllerTest {
     class GetAllMatchesTests {
 
         @Test
-        @DisplayName("Should get all matches for tournament")
-        void shouldGetAllMatchesForTournament() throws Exception {
+        @DisplayName("Should get paginated matches for tournament without filters")
+        void shouldGetPaginatedMatchesForTournament() throws Exception {
             Match match1 = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
             Match match2 = new Match(2L, 10L, 3L, 4L, TEST_DATE.plusDays(1), "Stadium B");
             List<Match> matches = Arrays.asList(match1, match2);
@@ -269,35 +303,155 @@ class MatchControllerTest {
             MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
             List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
 
-            when(getMatchUseCase.getAllByTournamentId(10L)).thenReturn(matches);
+            Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(matchPage);
             when(matchMapper.toResponseList(matches)).thenReturn(responses);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].field").value("Stadium A"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].field").value("Stadium B"));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].field").value("Stadium A"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].field").value("Stadium B"))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(20))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
 
-            verify(getMatchUseCase, times(1)).getAllByTournamentId(10L);
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
             verify(matchMapper, times(1)).toResponseList(matches);
         }
 
         @Test
-        @DisplayName("Should return empty list when no matches exist")
-        void shouldReturnEmptyListWhenNoMatchesExist() throws Exception {
+        @DisplayName("Should return empty page when no matches exist")
+        void shouldReturnEmptyPageWhenNoMatchesExist() throws Exception {
             List<Match> emptyList = Arrays.asList();
-            when(getMatchUseCase.getAllByTournamentId(10L)).thenReturn(emptyList);
+            Page<Match> emptyPage = new Page<>(emptyList, 0, 20, 0);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(emptyPage);
             when(matchMapper.toResponseList(emptyList)).thenReturn(Arrays.asList());
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0));
 
-            verify(getMatchUseCase, times(1)).getAllByTournamentId(10L);
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("Should get matches with specific date filter")
+        void shouldGetMatchesWithSpecificDateFilter() throws Exception {
+            Match match1 = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+            List<Match> matches = Arrays.asList(match1);
+
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            List<MatchResponseDTO> responses = Arrays.asList(response1);
+
+            Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(matchPage);
+            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+
+            mockMvc.perform(get("/tournaments/10/matches")
+                    .param("specificDate", "2025-11-15")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(1));
+
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("Should get matches with date range filter")
+        void shouldGetMatchesWithDateRangeFilter() throws Exception {
+            Match match1 = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+            Match match2 = new Match(2L, 10L, 3L, 4L, TEST_DATE.plusDays(1), "Stadium B");
+            List<Match> matches = Arrays.asList(match1, match2);
+
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+            List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
+
+            Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(matchPage);
+            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+
+            mockMvc.perform(get("/tournaments/10/matches")
+                    .param("dateFrom", "2025-11-15")
+                    .param("dateTo", "2025-11-20")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2));
+
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("Should get matches with status filter")
+        void shouldGetMatchesWithStatusFilter() throws Exception {
+            Match match1 = new Match(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            List<Match> matches = Arrays.asList(match1);
+
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            List<MatchResponseDTO> responses = Arrays.asList(response1);
+
+            Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(matchPage);
+            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+
+            mockMvc.perform(get("/tournaments/10/matches")
+                    .param("status", "FINISHED")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].status").value("FINISHED"));
+
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+        }
+
+        @Test
+        @DisplayName("Should get matches with custom pagination")
+        void shouldGetMatchesWithCustomPagination() throws Exception {
+            Match match1 = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+            List<Match> matches = Arrays.asList(match1);
+
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            List<MatchResponseDTO> responses = Arrays.asList(response1);
+
+            Page<Match> matchPage = new Page<>(matches, 1, 10, 15);
+
+            when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
+                    .thenReturn(matchPage);
+            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+
+            mockMvc.perform(get("/tournaments/10/matches")
+                    .param("page", "1")
+                    .param("size", "10")
+                    .param("sortBy", "matchDate")
+                    .param("direction", "DESC")
+                    .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(15))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+            verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
         }
     }
 

@@ -1,17 +1,21 @@
 package com.personal.tournament_api.match.infrastructure.adapters.web;
 
 import com.personal.tournament_api.match.application.usecases.*;
-import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.model.*;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.FinishMatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchResponseDTO;
+import com.personal.tournament_api.match.infrastructure.adapters.web.dto.PageResponseDTO;
+import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchFilterBuilder;
 import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -26,6 +30,7 @@ public class MatchController {
     private final DeleteMatchUseCase deleteMatchUseCase;
     private final PostponeMatchUseCase postponeMatchUseCase;
     private final MatchMapper matchMapper;
+    private final MatchFilterBuilder matchFilterBuilder;
 
     @PostMapping
     public ResponseEntity<MatchResponseDTO> create(@PathVariable Long tournamentId,
@@ -42,9 +47,26 @@ public class MatchController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MatchResponseDTO>> getAllByTournamentId(@PathVariable Long tournamentId) {
-        List<Match> matches = getMatchUseCase.getAllByTournamentId(tournamentId);
-        return ResponseEntity.ok(matchMapper.toResponseList(matches));
+    public ResponseEntity<PageResponseDTO<MatchResponseDTO>> getAllByTournamentId(
+            @PathVariable Long tournamentId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate specificDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(required = false) MatchStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "matchDate") String sortBy,
+            @RequestParam(defaultValue = "ASC") String direction) {
+
+        MatchSearchCriteria criteria = matchFilterBuilder.buildSearchCriteria(specificDate, dateFrom, dateTo, status);
+        PageRequest pageRequest = matchFilterBuilder.buildPageRequest(page, size, sortBy, direction);
+
+        Page<Match> matchPage = getMatchUseCase.getByTournamentIdWithFilters(tournamentId, criteria, pageRequest);
+
+        List<MatchResponseDTO> matchDTOs = matchMapper.toResponseList(matchPage.getContent());
+        Page<MatchResponseDTO> dtoPage = new Page<>(matchDTOs, matchPage.getPage(), matchPage.getSize(), matchPage.getTotalElements());
+
+        return ResponseEntity.ok(PageResponseDTO.from(dtoPage));
     }
 
     @PutMapping("/{matchId}")
