@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/tournaments/{tournamentId}/matches")
@@ -62,9 +61,7 @@ public class MatchController {
         PageRequest pageRequest = matchFilterBuilder.buildPageRequest(page, size, sortBy, direction);
 
         Page<Match> matchPage = getMatchUseCase.getByTournamentIdWithFilters(tournamentId, criteria, pageRequest);
-
-        List<MatchResponseDTO> matchDTOs = matchMapper.toResponseList(matchPage.getContent());
-        Page<MatchResponseDTO> dtoPage = new Page<>(matchDTOs, matchPage.getPage(), matchPage.getSize(), matchPage.getTotalElements());
+        Page<MatchResponseDTO> dtoPage = matchMapper.toResponsePage(matchPage);
 
         return ResponseEntity.ok(PageResponseDTO.from(dtoPage));
     }
