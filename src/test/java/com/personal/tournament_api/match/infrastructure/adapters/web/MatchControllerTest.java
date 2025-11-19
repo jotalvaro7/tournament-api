@@ -304,10 +304,11 @@ class MatchControllerTest {
             List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
+            Page<MatchResponseDTO> dtoPage = new Page<>(responses, 0, 20, 2);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(matchPage);
-            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+            when(matchMapper.toResponsePage(matchPage)).thenReturn(dtoPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -325,18 +326,20 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.last").value(true));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
-            verify(matchMapper, times(1)).toResponseList(matches);
+            verify(matchMapper, times(1)).toResponsePage(matchPage);
         }
 
         @Test
         @DisplayName("Should return empty page when no matches exist")
         void shouldReturnEmptyPageWhenNoMatchesExist() throws Exception {
             List<Match> emptyList = Arrays.asList();
+            List<MatchResponseDTO> emptyDTOList = Arrays.asList();
             Page<Match> emptyPage = new Page<>(emptyList, 0, 20, 0);
+            Page<MatchResponseDTO> emptyDTOPage = new Page<>(emptyDTOList, 0, 20, 0);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(emptyPage);
-            when(matchMapper.toResponseList(emptyList)).thenReturn(Arrays.asList());
+            when(matchMapper.toResponsePage(emptyPage)).thenReturn(emptyDTOPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -345,6 +348,7 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(0));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+            verify(matchMapper, times(1)).toResponsePage(emptyPage);
         }
 
         @Test
@@ -357,10 +361,11 @@ class MatchControllerTest {
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
+            Page<MatchResponseDTO> dtoPage = new Page<>(responses, 0, 20, 1);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(matchPage);
-            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+            when(matchMapper.toResponsePage(matchPage)).thenReturn(dtoPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .param("specificDate", "2025-11-15")
@@ -370,6 +375,7 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.content[0].id").value(1));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+            verify(matchMapper, times(1)).toResponsePage(matchPage);
         }
 
         @Test
@@ -384,10 +390,11 @@ class MatchControllerTest {
             List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
+            Page<MatchResponseDTO> dtoPage = new Page<>(responses, 0, 20, 2);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(matchPage);
-            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+            when(matchMapper.toResponsePage(matchPage)).thenReturn(dtoPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .param("dateFrom", "2025-11-15")
@@ -397,6 +404,7 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.content.length()").value(2));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+            verify(matchMapper, times(1)).toResponsePage(matchPage);
         }
 
         @Test
@@ -409,10 +417,11 @@ class MatchControllerTest {
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
+            Page<MatchResponseDTO> dtoPage = new Page<>(responses, 0, 20, 1);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(matchPage);
-            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+            when(matchMapper.toResponsePage(matchPage)).thenReturn(dtoPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .param("status", "FINISHED")
@@ -422,6 +431,7 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.content[0].status").value("FINISHED"));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+            verify(matchMapper, times(1)).toResponsePage(matchPage);
         }
 
         @Test
@@ -434,10 +444,11 @@ class MatchControllerTest {
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 1, 10, 15);
+            Page<MatchResponseDTO> dtoPage = new Page<>(responses, 1, 10, 15);
 
             when(getMatchUseCase.getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class)))
                     .thenReturn(matchPage);
-            when(matchMapper.toResponseList(matches)).thenReturn(responses);
+            when(matchMapper.toResponsePage(matchPage)).thenReturn(dtoPage);
 
             mockMvc.perform(get("/tournaments/10/matches")
                     .param("page", "1")
@@ -452,6 +463,7 @@ class MatchControllerTest {
                 .andExpect(jsonPath("$.totalPages").value(2));
 
             verify(getMatchUseCase, times(1)).getByTournamentIdWithFilters(eq(10L), any(MatchSearchCriteria.class), any(PageRequest.class));
+            verify(matchMapper, times(1)).toResponsePage(matchPage);
         }
     }
 

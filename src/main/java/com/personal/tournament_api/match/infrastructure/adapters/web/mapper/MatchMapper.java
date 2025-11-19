@@ -4,6 +4,7 @@ import com.personal.tournament_api.match.application.usecases.CreateMatchUseCase
 import com.personal.tournament_api.match.application.usecases.FinishMatchUseCase;
 import com.personal.tournament_api.match.application.usecases.UpdateMatchUseCase;
 import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.model.Page;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.FinishMatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchResponseDTO;
@@ -36,4 +37,9 @@ public interface MatchMapper {
     MatchResponseDTO toResponse(Match match);
 
     List<MatchResponseDTO> toResponseList(List<Match> matches);
+
+    default Page<MatchResponseDTO> toResponsePage(Page<Match> matchPage) {
+        List<MatchResponseDTO> matchDTOs = toResponseList(matchPage.getContent());
+        return new Page<>(matchDTOs, matchPage.getPage(), matchPage.getSize(), matchPage.getTotalElements());
+    }
 }
