@@ -1,9 +1,12 @@
 package com.personal.tournament_api.team.application;
 
+import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase.CreateTeamCommand;
 import com.personal.tournament_api.team.application.usecases.UpdateTeamUseCase.UpdateTeamCommand;
 import com.personal.tournament_api.team.domain.TeamDomainService;
 import com.personal.tournament_api.team.domain.exceptions.DuplicateTeamNameException;
+import com.personal.tournament_api.team.domain.exceptions.TeamHasMatchesException;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
@@ -39,6 +42,9 @@ class TeamServiceTest {
 
     @Mock
     private TeamDomainService teamDomainService;
+
+    @Mock
+    private MatchRepository matchRepository;
 
     @InjectMocks
     private TeamService teamService;
@@ -243,10 +249,11 @@ class TeamServiceTest {
     class DeleteTeamTests {
 
         @Test
-        @DisplayName("Should delete team successfully")
+        @DisplayName("Should delete team successfully when has no associated matches")
         void shouldDeleteTeamSuccessfully() {
             // Given
             when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+            when(matchRepository.findAllByTeamId(1L)).thenReturn(List.of());
             doNothing().when(teamRepository).deleteById(1L);
 
             // When
@@ -254,6 +261,7 @@ class TeamServiceTest {
 
             // Then
             verify(teamRepository, times(1)).findById(1L);
+            verify(matchRepository, times(1)).findAllByTeamId(1L);
             verify(teamRepository, times(1)).deleteById(1L);
         }
 
@@ -269,6 +277,33 @@ class TeamServiceTest {
             });
 
             verify(teamRepository, times(1)).findById(999L);
+            verify(matchRepository, never()).findAllByTeamId(any());
+            verify(teamRepository, never()).deleteById(any());
+        }
+
+        @Test
+        @DisplayName("Should throw TeamHasMatchesException when team has associated matches")
+        void shouldThrowExceptionWhenTeamHasMatches() {
+            // Given
+            Match match1 = new Match(1L, 1L, 1L, 2L,
+                java.time.LocalDateTime.now(), "Field A");
+            Match match2 = new Match(2L, 1L, 3L, 1L,
+                java.time.LocalDateTime.now(), "Field B");
+            List<Match> matches = Arrays.asList(match1, match2);
+
+            when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+            when(matchRepository.findAllByTeamId(1L)).thenReturn(matches);
+
+            // When & Then
+            TeamHasMatchesException exception = assertThrows(TeamHasMatchesException.class, () -> {
+                teamService.delete(1L);
+            });
+
+            assertTrue(exception.getMessage().contains("cannot be deleted"));
+            assertTrue(exception.getMessage().contains("2 associated match(es)"));
+
+            verify(teamRepository, times(1)).findById(1L);
+            verify(matchRepository, times(1)).findAllByTeamId(1L);
             verify(teamRepository, never()).deleteById(any());
         }
     }

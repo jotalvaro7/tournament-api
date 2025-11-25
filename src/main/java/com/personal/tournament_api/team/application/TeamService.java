@@ -1,10 +1,13 @@
 package com.personal.tournament_api.team.application;
 
+import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.DeleteTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.GetTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.UpdateTeamUseCase;
 import com.personal.tournament_api.team.domain.TeamDomainService;
+import com.personal.tournament_api.team.domain.exceptions.TeamHasMatchesException;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
@@ -29,6 +32,7 @@ public class TeamService implements
 
     private final TeamRepository teamRepository;
     private final TeamDomainService teamDomainService;
+    private final MatchRepository matchRepository;
 
 
     @Override
@@ -72,6 +76,10 @@ public class TeamService implements
         log.info("Deleting team with id: {}", teamId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        List<Match> associatedMatches = matchRepository.findAllByTeamId(teamId);
+        team.validateCanBeDeleted(associatedMatches.size());
+
         teamRepository.deleteById(team.getId());
         log.info("Team deleted with id: {}", teamId);
     }

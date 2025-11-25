@@ -85,6 +85,12 @@ public class Team {
         validate();
     }
 
+    public void validateCanBeDeleted(int associatedMatchesCount) {
+        if (associatedMatchesCount > 0) {
+            throw new TeamHasMatchesException(this.id, associatedMatchesCount);
+        }
+    }
+
     public void recordMatchResult(int goalsFor, int goalsAgainst) {
         validateGoals(goalsFor, goalsAgainst);
         if (goalsFor > goalsAgainst) {
