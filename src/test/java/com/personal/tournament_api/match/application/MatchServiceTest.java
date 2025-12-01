@@ -417,12 +417,19 @@ class MatchServiceTest {
     class DeleteMatchTests {
 
         @Test
-        @DisplayName("Should delete match successfully")
-        void shouldDeleteMatchSuccessfully() {
+        @DisplayName("Should delete match without result successfully")
+        void shouldDeleteMatchWithoutResultSuccessfully() {
             // Given
             Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
                 VALID_DATE, "Stadium A");
+            Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID);
+            Team awayTeam = new Team(AWAY_TEAM_ID, "Away Team", "Coach B", TOURNAMENT_ID);
+
             when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
+            when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+            when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+            doNothing().when(matchResultService).prepareMatchForDeletion(match, homeTeam, awayTeam);
+            when(teamRepository.save(any(Team.class))).thenAnswer(invocation -> invocation.getArgument(0));
             doNothing().when(matchRepository).deleteById(MATCH_ID);
 
             // When
@@ -430,6 +437,40 @@ class MatchServiceTest {
 
             // Then
             verify(matchRepository, times(1)).findById(MATCH_ID);
+            verify(teamRepository, times(1)).findById(HOME_TEAM_ID);
+            verify(teamRepository, times(1)).findById(AWAY_TEAM_ID);
+            verify(matchResultService, times(1)).prepareMatchForDeletion(match, homeTeam, awayTeam);
+            verify(teamRepository, times(2)).save(any(Team.class));
+            verify(matchRepository, times(1)).deleteById(MATCH_ID);
+        }
+
+        @Test
+        @DisplayName("Should delete match with result and revert statistics")
+        void shouldDeleteMatchWithResultAndRevertStatistics() {
+            // Given
+            Match matchWithResult = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
+                3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
+            Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID,
+                3, 1, 1, 0, 0, 3, 1, 2);
+            Team awayTeam = new Team(AWAY_TEAM_ID, "Away Team", "Coach B", TOURNAMENT_ID,
+                0, 1, 0, 0, 1, 1, 3, -2);
+
+            when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(matchWithResult));
+            when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+            when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+            doNothing().when(matchResultService).prepareMatchForDeletion(matchWithResult, homeTeam, awayTeam);
+            when(teamRepository.save(any(Team.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            doNothing().when(matchRepository).deleteById(MATCH_ID);
+
+            // When
+            matchService.delete(MATCH_ID);
+
+            // Then
+            verify(matchRepository, times(1)).findById(MATCH_ID);
+            verify(teamRepository, times(1)).findById(HOME_TEAM_ID);
+            verify(teamRepository, times(1)).findById(AWAY_TEAM_ID);
+            verify(matchResultService, times(1)).prepareMatchForDeletion(matchWithResult, homeTeam, awayTeam);
+            verify(teamRepository, times(2)).save(any(Team.class));
             verify(matchRepository, times(1)).deleteById(MATCH_ID);
         }
 
@@ -442,6 +483,46 @@ class MatchServiceTest {
             // When & Then
             assertThrows(MatchNotFoundException.class, () -> matchService.delete(999L));
             verify(matchRepository, times(1)).findById(999L);
+            verify(matchRepository, never()).deleteById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when home team not found during delete")
+        void shouldThrowExceptionWhenHomeTeamNotFoundDuringDelete() {
+            // Given
+            Match matchWithResult = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
+                3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
+
+            when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(matchWithResult));
+            when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
+
+            // When & Then
+            assertThrows(TeamNotFoundException.class, () -> matchService.delete(MATCH_ID));
+            verify(matchRepository, times(1)).findById(MATCH_ID);
+            verify(teamRepository, times(1)).findById(HOME_TEAM_ID);
+            verify(matchResultService, never()).prepareMatchForDeletion(any(), any(), any());
+            verify(matchRepository, never()).deleteById(anyLong());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when away team not found during delete")
+        void shouldThrowExceptionWhenAwayTeamNotFoundDuringDelete() {
+            // Given
+            Match matchWithResult = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
+                3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
+            Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID,
+                3, 1, 1, 0, 0, 3, 1, 2);
+
+            when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(matchWithResult));
+            when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+            when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.empty());
+
+            // When & Then
+            assertThrows(TeamNotFoundException.class, () -> matchService.delete(MATCH_ID));
+            verify(matchRepository, times(1)).findById(MATCH_ID);
+            verify(teamRepository, times(1)).findById(HOME_TEAM_ID);
+            verify(teamRepository, times(1)).findById(AWAY_TEAM_ID);
+            verify(matchResultService, never()).prepareMatchForDeletion(any(), any(), any());
             verify(matchRepository, never()).deleteById(anyLong());
         }
     }

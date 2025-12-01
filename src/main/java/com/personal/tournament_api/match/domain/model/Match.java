@@ -120,6 +120,10 @@ public class Match {
         }
     }
 
+    public boolean hasResult() {
+        return this.homeTeamScore != null && this.awayTeamScore != null;
+    }
+
     // Getters
     public Long getId() {
         return id;
