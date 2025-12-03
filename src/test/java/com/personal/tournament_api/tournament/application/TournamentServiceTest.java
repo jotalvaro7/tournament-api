@@ -1,5 +1,6 @@
 package com.personal.tournament_api.tournament.application;
 
+import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import com.personal.tournament_api.tournament.application.usecases.CreateTournamentUseCase.CreateTournamentCommand;
 import com.personal.tournament_api.tournament.application.usecases.UpdateTournamentUseCase.UpdateTournamentCommand;
@@ -43,6 +44,9 @@ class TournamentServiceTest {
 
     @Mock
     private TeamRepository teamRepository;
+
+    @Mock
+    private MatchRepository matchRepository;
 
     @InjectMocks
     private TournamentService tournamentService;
@@ -406,6 +410,7 @@ class TournamentServiceTest {
             Tournament tournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(matchRepository).deleteByTournamentId(tournamentId);
             doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
@@ -414,6 +419,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(matchRepository).deleteByTournamentId(tournamentId);
             verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
@@ -428,6 +434,7 @@ class TournamentServiceTest {
             tournament.endTournament();
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(matchRepository).deleteByTournamentId(tournamentId);
             doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
@@ -436,6 +443,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(matchRepository).deleteByTournamentId(tournamentId);
             verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
@@ -449,6 +457,7 @@ class TournamentServiceTest {
             tournament.cancelTournament();
 
             when(tournamentRepository.findById(tournamentId)).thenReturn(Optional.of(tournament));
+            doNothing().when(matchRepository).deleteByTournamentId(tournamentId);
             doNothing().when(teamRepository).deleteByTournamentId(tournamentId);
             doNothing().when(tournamentRepository).deleteById(tournamentId);
 
@@ -457,6 +466,7 @@ class TournamentServiceTest {
 
             // Then
             verify(tournamentRepository).findById(tournamentId);
+            verify(matchRepository).deleteByTournamentId(tournamentId);
             verify(teamRepository).deleteByTournamentId(tournamentId);
             verify(tournamentRepository).deleteById(tournamentId);
         }
@@ -474,6 +484,7 @@ class TournamentServiceTest {
             });
 
             verify(tournamentRepository).findById(tournamentId);
+            verify(matchRepository, never()).deleteByTournamentId(anyLong());
             verify(teamRepository, never()).deleteByTournamentId(anyLong());
             verify(tournamentRepository, never()).deleteById(anyLong());
         }
@@ -494,6 +505,7 @@ class TournamentServiceTest {
             });
 
             verify(tournamentRepository).findById(tournamentId);
+            verify(matchRepository, never()).deleteByTournamentId(anyLong());
             verify(teamRepository, never()).deleteByTournamentId(anyLong());
             verify(tournamentRepository, never()).deleteById(anyLong());
         }

@@ -23,6 +23,28 @@ public class MatchResultService {
         return outcome;
     }
 
+    public void revertMatchResult(Match match, Team homeTeam, Team awayTeam) {
+        if (!match.hasResult()) {
+            throw new InvalidMatchDataException("Cannot revert result from a match without a result");
+        }
+
+        validateTeamsFromMatch(match, homeTeam, awayTeam);
+
+        homeTeam.reverseMatchResult(match.getHomeTeamScore(), match.getAwayTeamScore());
+        awayTeam.reverseMatchResult(match.getAwayTeamScore(), match.getHomeTeamScore());
+    }
+
+    public void prepareMatchForDeletion(Match match, Team homeTeam, Team awayTeam) {
+        if (!match.hasResult()) {
+            return;
+        }
+
+        validateTeamsFromMatch(match, homeTeam, awayTeam);
+
+        homeTeam.reverseMatchResult(match.getHomeTeamScore(), match.getAwayTeamScore());
+        awayTeam.reverseMatchResult(match.getAwayTeamScore(), match.getHomeTeamScore());
+    }
+
     private void validateTeamsFromMatch(Match match, Team homeTeam, Team awayTeam) {
         validateTeamBelongsToTournament(match, homeTeam, "Home");
         validateTeamBelongsToTournament(match, awayTeam, "Away");

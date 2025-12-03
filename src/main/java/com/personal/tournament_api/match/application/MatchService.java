@@ -147,8 +147,17 @@ public class MatchService implements
 
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new MatchNotFoundException(matchId));
+        Team homeTeam = teamRepository.findById(match.getHomeTeamId())
+                .orElseThrow(() -> new TeamNotFoundException(match.getHomeTeamId()));
+        Team awayTeam = teamRepository.findById(match.getAwayTeamId())
+                .orElseThrow(() -> new TeamNotFoundException(match.getAwayTeamId()));
 
+        matchResultService.prepareMatchForDeletion(match, homeTeam, awayTeam);
+
+        teamRepository.save(homeTeam);
+        teamRepository.save(awayTeam);
         matchRepository.deleteById(match.getId());
+
         log.info("Match deleted with id: {}", matchId);
     }
 }
