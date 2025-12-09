@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
+import java.util.List;
+
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PlayerMapper {
 
@@ -19,4 +21,6 @@ public interface PlayerMapper {
     CreatePlayerUseCase.CreatePlayerCommand toCreateCommand(Long tournamentId, Long teamId, PlayerRequestDTO request);
 
     PlayerResponseDTO toResponse(Player player);
+
+    List<PlayerResponseDTO> toResponseList(List<Player> players);
 }

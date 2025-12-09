@@ -1,6 +1,7 @@
 package com.personal.tournament_api.player.application;
 
 import com.personal.tournament_api.player.application.usecases.CreatePlayerUseCase;
+import com.personal.tournament_api.player.application.usecases.GetPlayersByTeamUseCase;
 import com.personal.tournament_api.player.domain.exceptions.DuplicatePlayerIdentificationException;
 import com.personal.tournament_api.player.domain.model.Player;
 import com.personal.tournament_api.player.domain.ports.PlayerRepository;
@@ -12,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @Slf4j
 @RequiredArgsConstructor
-public class PlayerService implements CreatePlayerUseCase {
+public class PlayerService implements CreatePlayerUseCase, GetPlayersByTeamUseCase {
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
@@ -40,5 +43,13 @@ public class PlayerService implements CreatePlayerUseCase {
         Player savedPlayer = playerRepository.save(player);
         log.info("Player created with id: {}", savedPlayer.getId());
         return savedPlayer;
+    }
+
+    @Override
+    public List<Player> getPlayersByTeamId(Long teamId) {
+        log.info("Fetching players for team id: {}", teamId);
+        List<Player> players = playerRepository.findAllByTeamId(teamId);
+        log.info("Found {} players for team id: {}", players.size(), teamId);
+        return players;
     }
 }
