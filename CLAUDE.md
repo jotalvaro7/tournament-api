@@ -144,14 +144,58 @@ Contiene:
 
 ## 🧩 Buenas Prácticas
 
-- Mantener el dominio **aislado de frameworks**.  
-- **Un slice, una responsabilidad.** No mezclar módulos.  
-- Reutilizar lógica común en `shared/`.  
-- Evitar servicios "gigantes"; preferir clases pequeñas y específicas.  
-- Respetar **principios SOLID**.  
-- Aplicar **DDD táctico** donde tenga sentido (Aggregate Roots, Value Objects, etc.).  
-- Mantener **test unitarios** para dominio y aplicación, y **tests de integración** para adaptadores.  
-- Mantener **dominio libre de dependencias circulares**.  
+- Mantener el dominio **aislado de frameworks**.
+- **Un slice, una responsabilidad.** No mezclar módulos.
+- Reutilizar lógica común en `shared/`.
+- Evitar servicios "gigantes"; preferir clases pequeñas y específicas.
+- Respetar **principios SOLID**.
+- Aplicar **DDD táctico** donde tenga sentido (Aggregate Roots, Value Objects, etc.).
+- Mantener **test unitarios** para dominio y aplicación, y **tests de integración** para adaptadores.
+- Mantener **dominio libre de dependencias circulares**.
+
+### 🗣️ Tell Don't Ask (Principio de Diseño)
+
+**En el Dominio (Entidades y Agregados):**
+- ✅ Aplicar **"Tell Don't Ask"**: las entidades deben validar y gestionar sus propios estados internos.
+- ✅ La entidad es responsable de garantizar sus invariantes y reglas de negocio internas.
+- ❌ No exponer getters para luego validar externamente; la entidad debe encapsular su comportamiento.
+
+**Ejemplo correcto:**
+```java
+// La entidad valida su propio estado
+public class Tournament {
+    public void start() {
+        if (this.status != TournamentStatus.PENDING) {
+            throw new TournamentAlreadyStartedException();
+        }
+        this.status = TournamentStatus.IN_PROGRESS;
+    }
+}
+```
+
+**En la Capa de Aplicación (Servicios de Aplicación):**
+- ✅ Es válido aplicar **"Ask"** cuando se requiere consultar el repositorio.
+- ✅ Las entidades no tienen conocimiento del contexto global (otros agregados, unicidad, etc.).
+- ✅ Los servicios de aplicación pueden preguntar al repositorio para validar reglas que requieren información externa.
+
+**Ejemplo válido:**
+```java
+@Service
+public class CreateTournamentService {
+    public void execute(CreateTournamentCommand command) {
+        // "Ask" al repositorio - la entidad no sabe si hay nombres duplicados
+        if (tournamentRepository.existsByName(command.getName())) {
+            throw new TournamentNameAlreadyExistsException(command.getName());
+        }
+        Tournament tournament = Tournament.create(command.getName(), ...);
+        tournamentRepository.save(tournament);
+    }
+}
+```
+
+**Resumen:**
+- **Dominio → Tell:** La entidad gestiona su estado interno.
+- **Aplicación → Ask permitido:** El servicio consulta repositorios para reglas que requieren contexto global (unicidad, existencia, relaciones entre agregados, etc.).  
 
 ---
 
