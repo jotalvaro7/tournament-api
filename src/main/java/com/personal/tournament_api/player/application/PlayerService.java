@@ -48,6 +48,10 @@ public class PlayerService implements CreatePlayerUseCase, GetPlayersByTeamUseCa
     @Override
     public List<Player> getPlayersByTeamId(Long teamId) {
         log.info("Fetching players for team id: {}", teamId);
+
+        teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
+
         List<Player> players = playerRepository.findAllByTeamId(teamId);
         log.info("Found {} players for team id: {}", players.size(), teamId);
         return players;
