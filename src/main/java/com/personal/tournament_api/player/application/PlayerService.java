@@ -46,6 +46,7 @@ public class PlayerService implements CreatePlayerUseCase, GetPlayersByTeamUseCa
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Player> getPlayersByTeamId(Long teamId) {
         log.info("Fetching players for team id: {}", teamId);
 

@@ -1,4 +1,4 @@
-package com.personal.tournament_api.shared.domain.vo;
+package com.personal.tournament_api.team.domain.vo;
 
 public record TeamId(Long value) {
 

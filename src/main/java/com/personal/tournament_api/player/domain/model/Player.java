@@ -3,7 +3,6 @@ package com.personal.tournament_api.player.domain.model;
 import com.personal.tournament_api.player.domain.model.vo.IdentificationNumber;
 import com.personal.tournament_api.player.domain.model.vo.PlayerLastName;
 import com.personal.tournament_api.player.domain.model.vo.PlayerName;
-import com.personal.tournament_api.shared.domain.vo.TeamId;
 
 public class Player {
 
@@ -11,10 +10,10 @@ public class Player {
     private PlayerName name;
     private PlayerLastName lastName;
     private IdentificationNumber identificationNumber;
-    private final TeamId teamId;
+    private final Long teamId;
 
     private Player(Long id, PlayerName name, PlayerLastName lastName,
-                   IdentificationNumber identificationNumber, TeamId teamId) {
+                   IdentificationNumber identificationNumber, Long teamId) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
@@ -30,7 +29,7 @@ public class Player {
                 new PlayerName(name),
                 new PlayerLastName(lastName),
                 new IdentificationNumber(identificationNumber),
-                new TeamId(teamId)
+                teamId
         );
     }
 
@@ -41,7 +40,7 @@ public class Player {
                 new PlayerName(name),
                 new PlayerLastName(lastName),
                 new IdentificationNumber(identificationNumber),
-                new TeamId(teamId)
+                teamId
         );
     }
 
@@ -70,6 +69,6 @@ public class Player {
     }
 
     public Long getTeamId() {
-        return teamId.value();
+        return teamId;
     }
 }
