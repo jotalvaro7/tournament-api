@@ -4,11 +4,14 @@ import com.personal.tournament_api.player.infrastructure.adapters.persistence.en
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlayerJpaRepository extends JpaRepository<PlayerEntity, Long> {
 
     boolean existsByIdentificationNumber(String identificationNumber);
 
     List<PlayerEntity> findAllByTeamId(Long teamId);
+
+    Optional<PlayerEntity> findByIdAndTeamId(Long id, Long teamId);
 
 }

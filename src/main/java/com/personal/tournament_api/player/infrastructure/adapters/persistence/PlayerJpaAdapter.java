@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,6 +34,12 @@ public class PlayerJpaAdapter implements PlayerRepository {
     public List<Player> findAllByTeamId(Long teamId) {
         List<PlayerEntity> entities = playerJpaRepository.findAllByTeamId(teamId);
         return mapper.toDomainList(entities);
+    }
+
+    @Override
+    public Optional<Player> findByIdAndTeamId(Long playerId, Long teamId) {
+        return playerJpaRepository.findByIdAndTeamId(playerId, teamId)
+                .map(mapper::toDomain);
     }
 
 }

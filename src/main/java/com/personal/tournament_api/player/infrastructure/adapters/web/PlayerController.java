@@ -1,6 +1,7 @@
 package com.personal.tournament_api.player.infrastructure.adapters.web;
 
 import com.personal.tournament_api.player.application.usecases.CreatePlayerUseCase;
+import com.personal.tournament_api.player.application.usecases.GetPlayerByIdUseCase;
 import com.personal.tournament_api.player.application.usecases.GetPlayersByTeamUseCase;
 import com.personal.tournament_api.player.domain.model.Player;
 import com.personal.tournament_api.player.infrastructure.adapters.web.dto.PlayerRequestDTO;
@@ -21,6 +22,7 @@ public class PlayerController {
 
     private final CreatePlayerUseCase createPlayerUseCase;
     private final GetPlayersByTeamUseCase getPlayersByTeamUseCase;
+    private final GetPlayerByIdUseCase getPlayerByIdUseCase;
     private final PlayerMapper playerMapper;
 
     @PostMapping
@@ -37,5 +39,14 @@ public class PlayerController {
     public ResponseEntity<List<PlayerResponseDTO>> getPlayers(@PathVariable Long teamId) {
         List<Player> players = getPlayersByTeamUseCase.getPlayersByTeamId(teamId);
         return ResponseEntity.ok(playerMapper.toResponseList(players));
+    }
+
+    @GetMapping("/{playerId}")
+    public ResponseEntity<PlayerResponseDTO> getPlayerById(@PathVariable Long teamId,
+                                                           @PathVariable Long playerId) {
+        return getPlayerByIdUseCase.getPlayerById(teamId, playerId)
+                .map(player -> ResponseEntity.ok(playerMapper.toResponse(player)))
+                .orElse(ResponseEntity.notFound().build());
+
     }
 }
