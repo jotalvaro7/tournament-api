@@ -1,9 +1,6 @@
 package com.personal.tournament_api.player.application;
 
-import com.personal.tournament_api.player.application.usecases.CreatePlayerUseCase;
-import com.personal.tournament_api.player.application.usecases.GetPlayerByIdUseCase;
-import com.personal.tournament_api.player.application.usecases.GetPlayersByTeamUseCase;
-import com.personal.tournament_api.player.application.usecases.UpdatePlayerUseCase;
+import com.personal.tournament_api.player.application.usecases.*;
 import com.personal.tournament_api.player.domain.exceptions.DuplicatePlayerIdentificationException;
 import com.personal.tournament_api.player.domain.exceptions.PlayerNotFoundException;
 import com.personal.tournament_api.player.domain.model.Player;
@@ -27,7 +24,8 @@ public class PlayerService implements
         CreatePlayerUseCase,
         GetPlayersByTeamUseCase,
         GetPlayerByIdUseCase,
-        UpdatePlayerUseCase {
+        UpdatePlayerUseCase,
+        DeletePlayerUseCase {
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
@@ -93,6 +91,19 @@ public class PlayerService implements
         log.info("Player updated with id: {}", updatedPlayer.getId());
 
         return updatedPlayer;
+    }
+
+    @Override
+    public void deletePlayer(Long tournamentId, Long teamId, Long playerId) {
+        log.info("Deleting player with id: {} for team id: {}", playerId, teamId);
+
+        ensureTeamBelongsToTournament(teamId, tournamentId);
+
+        Player player = playerRepository.findByIdAndTeamId(playerId, teamId)
+                .orElseThrow(() -> new PlayerNotFoundException(playerId));
+
+        playerRepository.deleteById(player.getId());
+        log.info("Player deleted with id: {}", playerId);
     }
 
     private void ensureTeamBelongsToTournament(Long teamId, Long tournamentId) {

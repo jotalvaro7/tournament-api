@@ -1,9 +1,6 @@
 package com.personal.tournament_api.player.infrastructure.adapters.web;
 
-import com.personal.tournament_api.player.application.usecases.CreatePlayerUseCase;
-import com.personal.tournament_api.player.application.usecases.GetPlayerByIdUseCase;
-import com.personal.tournament_api.player.application.usecases.GetPlayersByTeamUseCase;
-import com.personal.tournament_api.player.application.usecases.UpdatePlayerUseCase;
+import com.personal.tournament_api.player.application.usecases.*;
 import com.personal.tournament_api.player.domain.model.Player;
 import com.personal.tournament_api.player.infrastructure.adapters.web.dto.PlayerRequestDTO;
 import com.personal.tournament_api.player.infrastructure.adapters.web.dto.PlayerResponseDTO;
@@ -25,6 +22,7 @@ public class PlayerController {
     private final GetPlayersByTeamUseCase getPlayersByTeamUseCase;
     private final GetPlayerByIdUseCase getPlayerByIdUseCase;
     private final UpdatePlayerUseCase updatePlayerUseCase;
+    private final DeletePlayerUseCase deletePlayerUseCase;
     private final PlayerMapper playerMapper;
 
     @PostMapping
@@ -60,5 +58,13 @@ public class PlayerController {
 
         Player player = updatePlayerUseCase.update(playerMapper.toUpdateCommand(teamId, playerId, tournamentId, request));
         return ResponseEntity.ok(playerMapper.toResponse(player));
+    }
+
+    @DeleteMapping("/{playerId}")
+    public ResponseEntity<Void> delete(@PathVariable Long tournamentId,
+                                       @PathVariable Long teamId,
+                                       @PathVariable Long playerId) {
+        deletePlayerUseCase.deletePlayer(tournamentId, teamId, playerId);
+        return ResponseEntity.noContent().build();
     }
 }

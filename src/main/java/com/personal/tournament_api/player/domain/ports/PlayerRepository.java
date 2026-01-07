@@ -16,4 +16,6 @@ public interface PlayerRepository {
 
     Optional<Player> findByIdAndTeamId(Long playerId, Long teamId);
 
+    void deleteById(Long playerId);
+
 }

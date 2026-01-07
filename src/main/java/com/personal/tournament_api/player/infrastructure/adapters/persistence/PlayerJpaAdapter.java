@@ -42,4 +42,9 @@ public class PlayerJpaAdapter implements PlayerRepository {
                 .map(mapper::toDomain);
     }
 
+    @Override
+    public void deleteById(Long playerId) {
+        playerJpaRepository.deleteById(playerId);
+    }
+
 }
