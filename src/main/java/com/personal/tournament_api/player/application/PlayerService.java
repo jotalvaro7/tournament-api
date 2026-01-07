@@ -3,7 +3,9 @@ package com.personal.tournament_api.player.application;
 import com.personal.tournament_api.player.application.usecases.CreatePlayerUseCase;
 import com.personal.tournament_api.player.application.usecases.GetPlayerByIdUseCase;
 import com.personal.tournament_api.player.application.usecases.GetPlayersByTeamUseCase;
+import com.personal.tournament_api.player.application.usecases.UpdatePlayerUseCase;
 import com.personal.tournament_api.player.domain.exceptions.DuplicatePlayerIdentificationException;
+import com.personal.tournament_api.player.domain.exceptions.PlayerNotFoundException;
 import com.personal.tournament_api.player.domain.model.Player;
 import com.personal.tournament_api.player.domain.ports.PlayerRepository;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
@@ -24,7 +26,8 @@ import java.util.Optional;
 public class PlayerService implements
         CreatePlayerUseCase,
         GetPlayersByTeamUseCase,
-        GetPlayerByIdUseCase {
+        GetPlayerByIdUseCase,
+        UpdatePlayerUseCase {
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
@@ -34,10 +37,7 @@ public class PlayerService implements
         log.info("Creating player with name: {} {} for team: {}",
                 command.name(), command.lastName(), command.teamId());
 
-        Team team = teamRepository.findById(command.teamId())
-                .orElseThrow(() -> new TeamNotFoundException(command.teamId()));
-
-        team.ensureBelongsToTournament(command.tournamentId());
+        ensureTeamBelongsToTournament(command.teamId(), command.tournamentId());
 
         if (playerRepository.existsByIdentificationNumber(command.identificationNumber())) {
             throw new DuplicatePlayerIdentificationException(command.identificationNumber());
@@ -74,5 +74,37 @@ public class PlayerService implements
         Optional<Player> player = playerRepository.findByIdAndTeamId(playerId, teamId);
         log.info("Player found: {}", player.isPresent());
         return player;
+    }
+
+    @Override
+    public Player update(UpdatePlayerCommand command) {
+        log.info("Updating player with id: {} for team id: {}", command.playerId(), command.teamId());
+
+        ensureTeamBelongsToTournament(command.teamId(), command.tournamentId());
+
+        Player player = playerRepository.findByIdAndTeamId(command.playerId(), command.teamId())
+                .orElseThrow(() -> new PlayerNotFoundException(command.playerId()));
+
+        ensureIdentificationNumberIsAvailable(player, command.identificationNumber());
+
+        player.updateDetails(command.name(), command.lastName(), command.identificationNumber());
+
+        Player updatedPlayer = playerRepository.save(player);
+        log.info("Player updated with id: {}", updatedPlayer.getId());
+
+        return updatedPlayer;
+    }
+
+    private void ensureTeamBelongsToTournament(Long teamId, Long tournamentId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
+        team.ensureBelongsToTournament(tournamentId);
+    }
+
+    private void ensureIdentificationNumberIsAvailable(Player player, String newIdentificationNumber) {
+        boolean identificationChanged = !player.getIdentificationNumber().equals(newIdentificationNumber);
+        if (identificationChanged && playerRepository.existsByIdentificationNumber(newIdentificationNumber)) {
+            throw new DuplicatePlayerIdentificationException(newIdentificationNumber);
+        }
     }
 }
