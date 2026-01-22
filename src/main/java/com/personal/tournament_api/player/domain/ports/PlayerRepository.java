@@ -18,4 +18,8 @@ public interface PlayerRepository {
 
     void deleteById(Long playerId);
 
+    void deleteAllByTeamId(Long teamId);
+
+    void deleteAllByTournamentId(Long tournamentId);
+
 }

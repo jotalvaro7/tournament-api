@@ -47,4 +47,14 @@ public class PlayerJpaAdapter implements PlayerRepository {
         playerJpaRepository.deleteById(playerId);
     }
 
+    @Override
+    public void deleteAllByTeamId(Long teamId) {
+        playerJpaRepository.deleteAllByTeamId(teamId);
+    }
+
+    @Override
+    public void deleteAllByTournamentId(Long tournamentId) {
+        playerJpaRepository.deleteAllByTournamentId(tournamentId);
+    }
+
 }
