@@ -1,6 +1,7 @@
 package com.personal.tournament_api.tournament.application;
 
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.player.domain.ports.PlayerRepository;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import com.personal.tournament_api.tournament.application.usecases.*;
 import com.personal.tournament_api.tournament.domain.TournamentDomainService;
@@ -30,6 +31,7 @@ public class TournamentService implements
     private final TournamentDomainService tournamentDomainService;
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
+    private final PlayerRepository playerRepository;
 
     @Override
     public Tournament create(CreateTournamentCommand command) {
@@ -80,6 +82,7 @@ public class TournamentService implements
         tournament.validateIfCanBeDeleted();
 
         matchRepository.deleteByTournamentId(tournamentId);
+        playerRepository.deleteAllByTournamentId(tournamentId);
         teamRepository.deleteByTournamentId(tournamentId);
         tournamentRepository.deleteById(tournamentId);
     }

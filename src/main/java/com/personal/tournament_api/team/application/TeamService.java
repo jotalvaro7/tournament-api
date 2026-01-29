@@ -2,6 +2,7 @@ package com.personal.tournament_api.team.application;
 
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.player.domain.ports.PlayerRepository;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.DeleteTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.GetTeamUseCase;
@@ -33,6 +34,7 @@ public class TeamService implements
     private final TeamRepository teamRepository;
     private final TeamDomainService teamDomainService;
     private final MatchRepository matchRepository;
+    private final PlayerRepository playerRepository;
 
 
     @Override
@@ -79,6 +81,9 @@ public class TeamService implements
 
         List<Match> associatedMatches = matchRepository.findAllByTeamId(teamId);
         team.validateCanBeDeleted(associatedMatches.size());
+
+        playerRepository.deleteAllByTeamId(teamId);
+        log.info("Deleted all players for team with id: {}", teamId);
 
         teamRepository.deleteById(team.getId());
         log.info("Team deleted with id: {}", teamId);

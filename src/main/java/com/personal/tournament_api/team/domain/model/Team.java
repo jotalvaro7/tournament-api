@@ -91,6 +91,12 @@ public class Team {
         }
     }
 
+    public void ensureBelongsToTournament(Long tournamentId) {
+        if (!this.tournamentId.equals(tournamentId)) {
+            throw new TeamNotInTournamentException(this.id, tournamentId);
+        }
+    }
+
     public void recordMatchResult(int goalsFor, int goalsAgainst) {
         validateGoals(goalsFor, goalsAgainst);
         if (goalsFor > goalsAgainst) {
