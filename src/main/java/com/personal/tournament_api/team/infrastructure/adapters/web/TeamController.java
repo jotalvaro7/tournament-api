@@ -1,9 +1,14 @@
 package com.personal.tournament_api.team.infrastructure.adapters.web;
 
+import com.personal.tournament_api.match.application.usecases.GetMatchUseCase;
+import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchResponseDTO;
+import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.DeleteTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.GetTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.UpdateTeamUseCase;
+import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.infrastructure.adapters.web.dto.TeamRequestDTO;
 import com.personal.tournament_api.team.infrastructure.adapters.web.dto.TeamResponseDTO;
@@ -25,7 +30,9 @@ public class TeamController {
     private final UpdateTeamUseCase updateTeamUseCase;
     private final GetTeamUseCase getTeamUseCase;
     private final DeleteTeamUseCase deleteTeamUseCase;
+    private final GetMatchUseCase getMatchUseCase;
     private final TeamMapper teamMapper;
+    private final MatchMapper matchMapper;
 
     @PostMapping
     public ResponseEntity<TeamResponseDTO> create(@PathVariable Long tournamentId,
@@ -45,6 +52,18 @@ public class TeamController {
     public ResponseEntity<List<TeamResponseDTO>> getAllOrderByNameAsc(@PathVariable Long tournamentId) {
         List<Team> teams = getTeamUseCase.getAllByTournamentIdOrderByNameAsc(tournamentId);
         return ResponseEntity.ok(teamMapper.toResponseList(teams));
+    }
+
+    @GetMapping("/{teamId}/matches")
+    public ResponseEntity<List<MatchResponseDTO>> getMatchesByTeamId(@PathVariable Long tournamentId,
+                                                                      @PathVariable Long teamId) {
+        Team team = getTeamUseCase.getById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        team.ensureBelongsToTournament(tournamentId);
+
+        List<Match> matches = getMatchUseCase.getAllByTeamId(teamId);
+        return ResponseEntity.ok(matchMapper.toResponseList(matches));
     }
 
     @PutMapping("/{teamId}")

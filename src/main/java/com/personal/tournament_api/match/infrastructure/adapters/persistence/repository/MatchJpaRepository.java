@@ -12,7 +12,8 @@ public interface MatchJpaRepository extends JpaRepository<MatchEntity, Long>, Jp
 
     List<MatchEntity> findAllByTournamentId(Long tournamentId);
 
-    @Query("SELECT m FROM MatchEntity m WHERE m.homeTeamId = :teamId OR m.awayTeamId = :teamId")
+    //@Query(value = "SELECT * FROM matches WHERE home_team_id = :teamId OR away_team_id = :teamId ORDER BY match_date ASC", nativeQuery = true)
+    @Query("SELECT m FROM MatchEntity m WHERE m.homeTeamId = :teamId OR m.awayTeamId = :teamId ORDER BY m.matchDate DESC")
     List<MatchEntity> findAllByTeamId(@Param("teamId") Long teamId);
 
     void deleteByTournamentId(Long tournamentId);

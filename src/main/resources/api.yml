@@ -369,6 +369,38 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /tournaments/{tournamentId}/teams/{teamId}/matches:
+    get:
+      tags:
+        - Teams
+      summary: Get all matches played by a team
+      description: Retrieve a list of all matches where the specified team participated (as home or away team)
+      operationId: getMatchesByTeamId
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+        - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: List of matches retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatchResponse'
+        '404':
+          description: Tournament or team not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Team does not belong to the specified tournament
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /tournaments/{tournamentId}/teams/{teamId}/players:
     get:
       tags:
