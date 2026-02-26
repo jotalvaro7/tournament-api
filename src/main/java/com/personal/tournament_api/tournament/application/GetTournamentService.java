@@ -4,6 +4,7 @@ import com.personal.tournament_api.tournament.application.usecases.GetTournament
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 @RequiredArgsConstructor
 public class GetTournamentService implements GetTournamentUseCase {
 
@@ -19,11 +21,13 @@ public class GetTournamentService implements GetTournamentUseCase {
 
     @Override
     public Optional<Tournament> getById(Long tournamentId) {
+        log.info("Fetching tournament with id: {}", tournamentId);
         return tournamentRepository.findById(tournamentId);
     }
 
     @Override
     public List<Tournament> getAll() {
+        log.info("Fetching all tournaments");
         return tournamentRepository.findAll();
     }
 }
