@@ -54,7 +54,7 @@ class TournamentControllerTest {
     private StartTournamentUseCase startTournamentUseCase;
 
     @MockBean
-    private endTournamentUseCase endTournamentUseCase;
+    private EndTournamentUseCase endTournamentUseCase;
 
     @MockBean
     private CancelTournamentUseCase cancelTournamentUseCase;

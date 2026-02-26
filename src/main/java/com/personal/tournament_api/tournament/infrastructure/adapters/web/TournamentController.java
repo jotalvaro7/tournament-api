@@ -22,7 +22,7 @@ public class TournamentController {
     private final UpdateTournamentUseCase updateTournamentUseCase;
     private final GetTournamentUseCase getTournamentUseCase;
     private final StartTournamentUseCase startTournamentUseCase;
-    private final endTournamentUseCase endTournamentUseCase;
+    private final EndTournamentUseCase endTournamentUseCase;
     private final CancelTournamentUseCase cancelTournamentUseCase;
     private final DeleteTournamentUseCase deleteTournamentUseCase;
     private final TournamentMapper tournamentMapper;
