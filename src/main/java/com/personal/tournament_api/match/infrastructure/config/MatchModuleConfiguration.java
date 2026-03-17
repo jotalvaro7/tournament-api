@@ -3,8 +3,8 @@ package com.personal.tournament_api.match.infrastructure.config;
 import com.personal.tournament_api.match.application.*;
 import com.personal.tournament_api.match.application.usecases.*;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
-import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,17 +38,17 @@ public class MatchModuleConfiguration {
     @Bean
     public DeleteMatchUseCase deleteMatchUseCase(
             MatchRepository matchRepository,
-            TeamRepository teamRepository,
+            MatchTeamPort matchTeamPort,
             MatchResultService matchResultService) {
-        return new DeleteMatchService(matchRepository, teamRepository, matchResultService);
+        return new DeleteMatchService(matchRepository, matchTeamPort, matchResultService);
     }
 
     @Bean
     public FinishMatchUseCase finishMatchUseCase(
             MatchRepository matchRepository,
-            TeamRepository teamRepository,
+            MatchTeamPort matchTeamPort,
             MatchResultService matchResultService) {
-        return new FinishMatchService(matchRepository, teamRepository, matchResultService);
+        return new FinishMatchService(matchRepository, matchTeamPort, matchResultService);
     }
 
     @Bean

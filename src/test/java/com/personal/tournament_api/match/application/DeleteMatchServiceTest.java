@@ -4,10 +4,10 @@ import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundExceptio
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.model.MatchStatus;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
-import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 class DeleteMatchServiceTest {
 
     @Mock private MatchRepository matchRepository;
-    @Mock private TeamRepository teamRepository;
+    @Mock private MatchTeamPort matchTeamPort;
     @Mock private MatchResultService matchResultService;
 
     private DeleteMatchService service;
@@ -41,7 +41,7 @@ class DeleteMatchServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new DeleteMatchService(matchRepository, teamRepository, matchResultService);
+        service = new DeleteMatchService(matchRepository, matchTeamPort, matchResultService);
     }
 
     @Test
@@ -53,10 +53,10 @@ class DeleteMatchServiceTest {
         Team awayTeam = new Team(AWAY_TEAM_ID, "Away Team", "Coach B", TOURNAMENT_ID);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
         doNothing().when(matchResultService).prepareMatchForDeletion(match, homeTeam, awayTeam);
-        when(teamRepository.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(matchTeamPort.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
         doNothing().when(matchRepository).deleteById(MATCH_ID);
 
         // When
@@ -64,7 +64,7 @@ class DeleteMatchServiceTest {
 
         // Then
         verify(matchResultService).prepareMatchForDeletion(match, homeTeam, awayTeam);
-        verify(teamRepository, times(2)).save(any(Team.class));
+        verify(matchTeamPort, times(2)).save(any(Team.class));
         verify(matchRepository).deleteById(MATCH_ID);
     }
 
@@ -80,17 +80,17 @@ class DeleteMatchServiceTest {
                 0, 1, 0, 0, 1, 1, 3, -2);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(matchWithResult));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
         doNothing().when(matchResultService).prepareMatchForDeletion(matchWithResult, homeTeam, awayTeam);
-        when(teamRepository.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(matchTeamPort.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
 
         // When
         service.delete(MATCH_ID);
 
         // Then
         verify(matchResultService).prepareMatchForDeletion(matchWithResult, homeTeam, awayTeam);
-        verify(teamRepository, times(2)).save(any(Team.class));
+        verify(matchTeamPort, times(2)).save(any(Team.class));
         verify(matchRepository).deleteById(MATCH_ID);
     }
 
@@ -113,7 +113,7 @@ class DeleteMatchServiceTest {
                 3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(TeamNotFoundException.class, () -> service.delete(MATCH_ID));

@@ -4,10 +4,10 @@ import com.personal.tournament_api.match.application.usecases.FinishMatchUseCase
 import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundException;
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
-import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +18,13 @@ public class FinishMatchService implements FinishMatchUseCase {
     private static final Logger log = LoggerFactory.getLogger(FinishMatchService.class);
 
     private final MatchRepository matchRepository;
-    private final TeamRepository teamRepository;
+    private final MatchTeamPort matchTeamPort;
     private final MatchResultService matchResultService;
 
-    public FinishMatchService(MatchRepository matchRepository, TeamRepository teamRepository,
+    public FinishMatchService(MatchRepository matchRepository, MatchTeamPort matchTeamPort,
                               MatchResultService matchResultService) {
         this.matchRepository = matchRepository;
-        this.teamRepository = teamRepository;
+        this.matchTeamPort = matchTeamPort;
         this.matchResultService = matchResultService;
     }
 
@@ -35,16 +35,16 @@ public class FinishMatchService implements FinishMatchUseCase {
         Match match = matchRepository.findById(command.matchId())
                 .orElseThrow(() -> new MatchNotFoundException(command.matchId()));
 
-        Team homeTeam = teamRepository.findById(match.getHomeTeamId())
+        Team homeTeam = matchTeamPort.findById(match.getHomeTeamId())
                 .orElseThrow(() -> new TeamNotFoundException(match.getHomeTeamId()));
-        Team awayTeam = teamRepository.findById(match.getAwayTeamId())
+        Team awayTeam = matchTeamPort.findById(match.getAwayTeamId())
                 .orElseThrow(() -> new TeamNotFoundException(match.getAwayTeamId()));
 
         var outcome = matchResultService.registerResult(match, homeTeam, awayTeam, command.homeTeamScore(), command.awayTeamScore());
 
         matchRepository.save(match);
-        teamRepository.save(homeTeam);
-        teamRepository.save(awayTeam);
+        matchTeamPort.save(homeTeam);
+        matchTeamPort.save(awayTeam);
 
         if (outcome.isCorrection()) {
             log.warn("Match {} result CORRECTED from {}-{} to {}-{}. Teams statistics updated.",

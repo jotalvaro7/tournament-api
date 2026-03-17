@@ -6,10 +6,10 @@ import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.model.MatchResultOutcome;
 import com.personal.tournament_api.match.domain.model.MatchStatus;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
+import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
-import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 class FinishMatchServiceTest {
 
     @Mock private MatchRepository matchRepository;
-    @Mock private TeamRepository teamRepository;
+    @Mock private MatchTeamPort matchTeamPort;
     @Mock private MatchResultService matchResultService;
 
     private FinishMatchService service;
@@ -44,7 +44,7 @@ class FinishMatchServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new FinishMatchService(matchRepository, teamRepository, matchResultService);
+        service = new FinishMatchService(matchRepository, matchTeamPort, matchResultService);
     }
 
     @Test
@@ -58,11 +58,11 @@ class FinishMatchServiceTest {
         MatchResultOutcome outcome = MatchResultOutcome.newResult();
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
         when(matchResultService.registerResult(eq(match), eq(homeTeam), eq(awayTeam), eq(3), eq(1))).thenReturn(outcome);
         when(matchRepository.save(any(Match.class))).thenReturn(match);
-        when(teamRepository.save(any(Team.class))).thenReturn(homeTeam);
+        when(matchTeamPort.save(any(Team.class))).thenReturn(homeTeam);
 
         // When
         Match result = service.finishMatch(command);
@@ -71,7 +71,7 @@ class FinishMatchServiceTest {
         assertNotNull(result);
         verify(matchResultService).registerResult(match, homeTeam, awayTeam, 3, 1);
         verify(matchRepository).save(match);
-        verify(teamRepository, times(2)).save(any(Team.class));
+        verify(matchTeamPort, times(2)).save(any(Team.class));
     }
 
     @Test
@@ -88,11 +88,11 @@ class FinishMatchServiceTest {
         MatchResultOutcome outcome = MatchResultOutcome.correction(2, 2);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
         when(matchResultService.registerResult(eq(match), eq(homeTeam), eq(awayTeam), eq(3), eq(1))).thenReturn(outcome);
         when(matchRepository.save(any(Match.class))).thenReturn(match);
-        when(teamRepository.save(any(Team.class))).thenReturn(homeTeam);
+        when(matchTeamPort.save(any(Team.class))).thenReturn(homeTeam);
 
         // When
         Match result = service.finishMatch(command);
@@ -122,7 +122,7 @@ class FinishMatchServiceTest {
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(TeamNotFoundException.class, () -> service.finishMatch(command));
@@ -138,8 +138,8 @@ class FinishMatchServiceTest {
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(teamRepository.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(teamRepository.findById(AWAY_TEAM_ID)).thenReturn(Optional.empty());
+        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
+        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(TeamNotFoundException.class, () -> service.finishMatch(command));
