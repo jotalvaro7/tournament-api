@@ -3,18 +3,20 @@ package com.personal.tournament_api.match.application;
 import com.personal.tournament_api.match.application.usecases.CreateMatchUseCase;
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class CreateMatchService implements CreateMatchUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(CreateMatchService.class);
+
     private final MatchRepository matchRepository;
+
+    public CreateMatchService(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public Match create(CreateMatchCommand command) {

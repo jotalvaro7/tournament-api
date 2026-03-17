@@ -5,19 +5,22 @@ import com.personal.tournament_api.team.domain.TeamDomainService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class UpdateTeamService implements UpdateTeamUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(UpdateTeamService.class);
 
     private final TeamRepository teamRepository;
     private final TeamDomainService teamDomainService;
+
+    public UpdateTeamService(TeamRepository teamRepository, TeamDomainService teamDomainService) {
+        this.teamRepository = teamRepository;
+        this.teamDomainService = teamDomainService;
+    }
 
     @Override
     public Team update(UpdateTeamCommand command) {

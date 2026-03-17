@@ -1,4 +1,4 @@
-package com.personal.tournament_api.match.application;
+package com.personal.tournament_api.match.infrastructure.adapters.events;
 
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.tournament.domain.events.TournamentDeletedEvent;
@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
 
 @Component
 @Slf4j

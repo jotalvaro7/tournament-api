@@ -1,6 +1,8 @@
 package com.personal.tournament_api.team.infrastructure.adapters.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.tournament_api.match.application.usecases.GetMatchUseCase;
+import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase.CreateTeamCommand;
 import com.personal.tournament_api.team.application.usecases.DeleteTeamUseCase;
@@ -59,6 +61,12 @@ class TeamControllerTest {
 
     @MockBean
     private DeleteTeamUseCase deleteTeamUseCase;
+
+    @MockBean
+    private GetMatchUseCase getMatchUseCase;
+
+    @MockBean
+    private MatchMapper matchMapper;
 
     @MockBean
     private TeamMapper teamMapper;

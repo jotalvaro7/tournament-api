@@ -7,19 +7,22 @@ import com.personal.tournament_api.player.domain.ports.PlayerRepository;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class CreatePlayerService implements CreatePlayerUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(CreatePlayerService.class);
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
+
+    public CreatePlayerService(PlayerRepository playerRepository, TeamRepository teamRepository) {
+        this.playerRepository = playerRepository;
+        this.teamRepository = teamRepository;
+    }
 
     @Override
     public Player execute(CreatePlayerCommand command) {

@@ -4,19 +4,23 @@ import com.personal.tournament_api.tournament.application.usecases.CreateTournam
 import com.personal.tournament_api.tournament.domain.TournamentDomainService;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class CreateTournamentService implements CreateTournamentUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(CreateTournamentService.class);
 
     private final TournamentRepository tournamentRepository;
     private final TournamentDomainService tournamentDomainService;
+
+    public CreateTournamentService(TournamentRepository tournamentRepository,
+                                   TournamentDomainService tournamentDomainService) {
+        this.tournamentRepository = tournamentRepository;
+        this.tournamentDomainService = tournamentDomainService;
+    }
 
     @Override
     public Tournament create(CreateTournamentCommand command) {

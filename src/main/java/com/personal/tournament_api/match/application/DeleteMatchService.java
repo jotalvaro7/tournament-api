@@ -8,20 +8,25 @@ import com.personal.tournament_api.match.domain.services.MatchResultService;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class DeleteMatchService implements DeleteMatchUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(DeleteMatchService.class);
 
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final MatchResultService matchResultService;
+
+    public DeleteMatchService(MatchRepository matchRepository, TeamRepository teamRepository,
+                              MatchResultService matchResultService) {
+        this.matchRepository = matchRepository;
+        this.teamRepository = teamRepository;
+        this.matchResultService = matchResultService;
+    }
 
     @Override
     public void delete(Long matchId) {

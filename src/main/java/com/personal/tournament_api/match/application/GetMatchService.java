@@ -6,21 +6,21 @@ import com.personal.tournament_api.match.domain.model.MatchSearchCriteria;
 import com.personal.tournament_api.match.domain.model.Page;
 import com.personal.tournament_api.match.domain.model.PageRequest;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@Transactional(readOnly = true)
-@Slf4j
-@RequiredArgsConstructor
 public class GetMatchService implements GetMatchUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(GetMatchService.class);
+
     private final MatchRepository matchRepository;
+
+    public GetMatchService(MatchRepository matchRepository) {
+        this.matchRepository = matchRepository;
+    }
 
     @Override
     public Optional<Match> getById(Long matchId) {

@@ -1,4 +1,4 @@
-package com.personal.tournament_api.team.application;
+package com.personal.tournament_api.team.infrastructure.adapters.events;
 
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
 import com.personal.tournament_api.tournament.domain.events.TournamentDeletedEvent;
@@ -8,6 +8,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * Adaptador de entrada (Spring Events → Application).
+ * Traduce el evento TournamentDeletedEvent al puerto de salida TeamRepository.
+ * Vive en infrastructure porque usa Spring (@Component, @EventListener, @Order).
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor

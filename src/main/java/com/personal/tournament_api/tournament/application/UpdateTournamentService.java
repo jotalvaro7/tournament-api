@@ -5,19 +5,23 @@ import com.personal.tournament_api.tournament.domain.TournamentDomainService;
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentNotFoundException;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class UpdateTournamentService implements UpdateTournamentUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(UpdateTournamentService.class);
 
     private final TournamentRepository tournamentRepository;
     private final TournamentDomainService tournamentDomainService;
+
+    public UpdateTournamentService(TournamentRepository tournamentRepository,
+                                   TournamentDomainService tournamentDomainService) {
+        this.tournamentRepository = tournamentRepository;
+        this.tournamentDomainService = tournamentDomainService;
+    }
 
     @Override
     public Tournament update(UpdateTournamentCommand command) {

@@ -3,21 +3,21 @@ package com.personal.tournament_api.team.application;
 import com.personal.tournament_api.team.application.usecases.GetTeamUseCase;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@Transactional(readOnly = true)
-@Slf4j
-@RequiredArgsConstructor
 public class GetTeamService implements GetTeamUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(GetTeamService.class);
+
     private final TeamRepository teamRepository;
+
+    public GetTeamService(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
+    }
 
     @Override
     public Optional<Team> getById(Long teamId) {

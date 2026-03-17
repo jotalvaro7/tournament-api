@@ -6,19 +6,23 @@ import com.personal.tournament_api.tournament.domain.events.TournamentDeletedEve
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentNotFoundException;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Service
 @Transactional
-@Slf4j
-@RequiredArgsConstructor
 public class DeleteTournamentService implements DeleteTournamentUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(DeleteTournamentService.class);
 
     private final TournamentRepository tournamentRepository;
     private final DomainEventPublisher domainEventPublisher;
+
+    public DeleteTournamentService(TournamentRepository tournamentRepository,
+                                   DomainEventPublisher domainEventPublisher) {
+        this.tournamentRepository = tournamentRepository;
+        this.domainEventPublisher = domainEventPublisher;
+    }
 
     @Override
     public void delete(Long tournamentId) {
