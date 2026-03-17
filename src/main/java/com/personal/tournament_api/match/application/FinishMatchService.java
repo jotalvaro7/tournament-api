@@ -6,8 +6,6 @@ import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
-import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
-import com.personal.tournament_api.team.domain.model.Team;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,16 +33,9 @@ public class FinishMatchService implements FinishMatchUseCase {
         Match match = matchRepository.findById(command.matchId())
                 .orElseThrow(() -> new MatchNotFoundException(command.matchId()));
 
-        Team homeTeam = matchTeamPort.findById(match.getHomeTeamId())
-                .orElseThrow(() -> new TeamNotFoundException(match.getHomeTeamId()));
-        Team awayTeam = matchTeamPort.findById(match.getAwayTeamId())
-                .orElseThrow(() -> new TeamNotFoundException(match.getAwayTeamId()));
-
-        var outcome = matchResultService.registerResult(match, homeTeam, awayTeam, command.homeTeamScore(), command.awayTeamScore());
+        var outcome = matchResultService.registerResult(match, matchTeamPort, command.homeTeamScore(), command.awayTeamScore());
 
         matchRepository.save(match);
-        matchTeamPort.save(homeTeam);
-        matchTeamPort.save(awayTeam);
 
         if (outcome.isCorrection()) {
             log.warn("Match {} result CORRECTED from {}-{} to {}-{}. Teams statistics updated.",

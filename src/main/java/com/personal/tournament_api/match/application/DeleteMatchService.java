@@ -6,8 +6,6 @@ import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
-import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
-import com.personal.tournament_api.team.domain.model.Team;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,15 +33,8 @@ public class DeleteMatchService implements DeleteMatchUseCase {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new MatchNotFoundException(matchId));
 
-        Team homeTeam = matchTeamPort.findById(match.getHomeTeamId())
-                .orElseThrow(() -> new TeamNotFoundException(match.getHomeTeamId()));
-        Team awayTeam = matchTeamPort.findById(match.getAwayTeamId())
-                .orElseThrow(() -> new TeamNotFoundException(match.getAwayTeamId()));
+        matchResultService.prepareMatchForDeletion(match, matchTeamPort);
 
-        matchResultService.prepareMatchForDeletion(match, homeTeam, awayTeam);
-
-        matchTeamPort.save(homeTeam);
-        matchTeamPort.save(awayTeam);
         matchRepository.deleteById(match.getId());
 
         log.info("Match deleted with id: {}", matchId);

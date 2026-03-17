@@ -8,8 +8,6 @@ import com.personal.tournament_api.match.domain.model.MatchStatus;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
-import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
-import com.personal.tournament_api.team.domain.model.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +20,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @DisplayName("FinishMatchService Tests")
@@ -52,26 +48,21 @@ class FinishMatchServiceTest {
     void shouldFinishMatchWithNewResultSuccessfully() {
         // Given
         Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID);
-        Team awayTeam = new Team(AWAY_TEAM_ID, "Away Team", "Coach B", TOURNAMENT_ID);
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
         MatchResultOutcome outcome = MatchResultOutcome.newResult();
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
-        when(matchResultService.registerResult(eq(match), eq(homeTeam), eq(awayTeam), eq(3), eq(1))).thenReturn(outcome);
+        when(matchResultService.registerResult(match, matchTeamPort, 3, 1)).thenReturn(outcome);
         when(matchRepository.save(any(Match.class))).thenReturn(match);
-        when(matchTeamPort.save(any(Team.class))).thenReturn(homeTeam);
 
         // When
         Match result = service.finishMatch(command);
 
         // Then
         assertNotNull(result);
-        verify(matchResultService).registerResult(match, homeTeam, awayTeam, 3, 1);
+        verify(matchResultService).registerResult(match, matchTeamPort, 3, 1);
         verify(matchRepository).save(match);
-        verify(matchTeamPort, times(2)).save(any(Team.class));
+        verifyNoInteractions(matchTeamPort);
     }
 
     @Test
@@ -80,26 +71,19 @@ class FinishMatchServiceTest {
         // Given
         Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
                 2, 2, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
-        Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID,
-                1, 1, 0, 1, 0, 2, 2, 0);
-        Team awayTeam = new Team(AWAY_TEAM_ID, "Away Team", "Coach B", TOURNAMENT_ID,
-                1, 1, 0, 1, 0, 2, 2, 0);
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
         MatchResultOutcome outcome = MatchResultOutcome.correction(2, 2);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.of(awayTeam));
-        when(matchResultService.registerResult(eq(match), eq(homeTeam), eq(awayTeam), eq(3), eq(1))).thenReturn(outcome);
+        when(matchResultService.registerResult(match, matchTeamPort, 3, 1)).thenReturn(outcome);
         when(matchRepository.save(any(Match.class))).thenReturn(match);
-        when(matchTeamPort.save(any(Team.class))).thenReturn(homeTeam);
 
         // When
         Match result = service.finishMatch(command);
 
         // Then
         assertNotNull(result);
-        verify(matchResultService).registerResult(match, homeTeam, awayTeam, 3, 1);
+        verify(matchResultService).registerResult(match, matchTeamPort, 3, 1);
     }
 
     @Test
@@ -111,38 +95,7 @@ class FinishMatchServiceTest {
 
         // When & Then
         assertThrows(MatchNotFoundException.class, () -> service.finishMatch(command));
-        verify(matchResultService, never()).registerResult(any(), any(), any(), anyInt(), anyInt());
-    }
-
-    @Test
-    @DisplayName("Should throw TeamNotFoundException when home team not found")
-    void shouldThrowExceptionWhenHomeTeamNotFound() {
-        // Given
-        Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
-
-        when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(TeamNotFoundException.class, () -> service.finishMatch(command));
-        verify(matchResultService, never()).registerResult(any(), any(), any(), anyInt(), anyInt());
-    }
-
-    @Test
-    @DisplayName("Should throw TeamNotFoundException when away team not found")
-    void shouldThrowExceptionWhenAwayTeamNotFound() {
-        // Given
-        Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Team homeTeam = new Team(HOME_TEAM_ID, "Home Team", "Coach A", TOURNAMENT_ID);
-        FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
-
-        when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
-        when(matchTeamPort.findById(HOME_TEAM_ID)).thenReturn(Optional.of(homeTeam));
-        when(matchTeamPort.findById(AWAY_TEAM_ID)).thenReturn(Optional.empty());
-
-        // When & Then
-        assertThrows(TeamNotFoundException.class, () -> service.finishMatch(command));
-        verify(matchResultService, never()).registerResult(any(), any(), any(), anyInt(), anyInt());
+        verifyNoInteractions(matchResultService);
+        verifyNoInteractions(matchTeamPort);
     }
 }
