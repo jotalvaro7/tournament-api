@@ -18,7 +18,7 @@ Cada slice puede evolucionar de forma independiente y contiene todos los element
 
 ## 🧩 Principios Arquitectónicos
 
-- **Dominio puro:** el núcleo del negocio no depende de frameworks ni librerías externas.  
+- **Núcleo independiente:** tanto el dominio como la capa de aplicación no dependen de frameworks ni librerías externas — solo Java puro.
 - **Puertos y Adaptadores:** las dependencias fluyen hacia el dominio; los detalles técnicos se implementan en adaptadores.  
 - **Slicing vertical:** cada feature (módulo) contiene sus capas internas — dominio, aplicación e infraestructura — en lugar de tener una estructura horizontal compartida.  
 - **Alta cohesión y bajo acoplamiento:** cada slice agrupa solo lo que pertenece a su caso de uso.  
@@ -84,17 +84,18 @@ Contiene:
 
 ---
 
-### ⚙️ Aplicación — ✅ CON FRAMEWORKS
+### ⚙️ Aplicación — ❌ SIN FRAMEWORKS
 
 Contiene:
-- Casos de uso o puertos de entrada  
-- Servicios de aplicación  
-- Coordinación entre dominio e infraestructura  
-- Mapeo de datos (DTOs ↔ entidades)  
+- Casos de uso o puertos de entrada
+- Servicios de aplicación
+- Coordinación entre dominio e infraestructura
 
 **Reglas:**
-- Puede usar Spring (`@Service`, `@Transactional`, etc.)  
-- No debe tener lógica de negocio, solo orquestación.  
+- No usar anotaciones de Spring (`@Service`, `@Transactional`, etc.).
+- No inyectar dependencias mediante frameworks.
+- Solo Java puro: las clases son instanciadas manualmente en los `*ModuleConfiguration` de infraestructura.
+- No debe tener lógica de negocio, solo orquestación.
 
 ---
 
@@ -132,9 +133,10 @@ Contiene:
 - ✅ Lógica de negocio pura.  
 
 ### ⚙️ Aplicación
-- ✅ Usa `@Service`, `@RequiredArgsConstructor`, etc.  
-- ⚠️ Sin lógica de negocio.  
-- ✅ Orquesta los flujos.  
+- ❌ Sin anotaciones de Spring o frameworks.
+- ✅ Solo Java puro.
+- ⚠️ Sin lógica de negocio.
+- ✅ Orquesta los flujos entre dominio e infraestructura.
 
 ### 🌐 Infraestructura
 - ✅ Usa anotaciones de frameworks.  
@@ -144,7 +146,7 @@ Contiene:
 
 ## 🧩 Buenas Prácticas
 
-- Mantener el dominio **aislado de frameworks**.
+- Mantener el dominio y la capa de aplicación **aislados de frameworks**. Solo la infraestructura puede depender de tecnologías (Spring, JPA, etc.).
 - **Un slice, una responsabilidad.** No mezclar módulos.
 - Reutilizar lógica común en `shared/`.
 - Evitar servicios "gigantes"; preferir clases pequeñas y específicas.
@@ -180,8 +182,14 @@ public class Tournament {
 
 **Ejemplo válido:**
 ```java
-@Service
-public class CreateTournamentService {
+public class CreateTournamentService implements CreateTournamentUseCase {
+
+    private final TournamentRepository tournamentRepository;
+
+    public CreateTournamentService(TournamentRepository tournamentRepository) {
+        this.tournamentRepository = tournamentRepository;
+    }
+
     public void execute(CreateTournamentCommand command) {
         // "Ask" al repositorio - la entidad no sabe si hay nombres duplicados
         if (tournamentRepository.existsByName(command.getName())) {
