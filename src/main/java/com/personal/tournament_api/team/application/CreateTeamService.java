@@ -4,11 +4,9 @@ import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
 import com.personal.tournament_api.team.domain.TeamDomainService;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class CreateTeamService implements CreateTeamUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(CreateTeamService.class);
@@ -25,7 +23,7 @@ public class CreateTeamService implements CreateTeamUseCase {
     public Team create(CreateTeamCommand command) {
         log.info("Creating team with name: {}", command.name());
         teamDomainService.validateUniqueTeamName(command.name(), teamRepository);
-        Team team = new Team(null, command.name(), command.coach(), command.tournamentId());
+        Team team = Team.create(command.name(), command.coach(), command.tournamentId());
         Team teamSaved = teamRepository.save(team);
         log.info("Team created with id: {}", teamSaved.getId());
         return teamSaved;

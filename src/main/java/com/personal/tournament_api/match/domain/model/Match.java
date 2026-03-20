@@ -1,11 +1,13 @@
 package com.personal.tournament_api.match.domain.model;
 
 import com.personal.tournament_api.match.domain.exceptions.*;
+import com.personal.tournament_api.match.domain.model.vo.MatchField;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Match {
+
     private final Long id;
     private final Long tournamentId;
     private final Long homeTeamId;
@@ -13,27 +15,12 @@ public class Match {
     private Integer homeTeamScore;
     private Integer awayTeamScore;
     private LocalDateTime matchDate;
-    private String field;
+    private MatchField field;
     private MatchStatus status;
 
-    public Match(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
-                 LocalDateTime matchDate, String field) {
-        this.id = id;
-        this.tournamentId = tournamentId;
-        this.homeTeamId = homeTeamId;
-        this.awayTeamId = awayTeamId;
-        this.matchDate = matchDate;
-        this.field = field;
-        this.status = MatchStatus.SCHEDULED;
-        this.homeTeamScore = null;
-        this.awayTeamScore = null;
-        validate();
-    }
-
-    // Constructor para cargar desde persistencia
-    public Match(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
-                 Integer homeTeamScore, Integer awayTeamScore, LocalDateTime matchDate,
-                 String field, MatchStatus status) {
+    private Match(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
+                  Integer homeTeamScore, Integer awayTeamScore,
+                  LocalDateTime matchDate, MatchField field, MatchStatus status) {
         this.id = id;
         this.tournamentId = tournamentId;
         this.homeTeamId = homeTeamId;
@@ -45,39 +32,24 @@ public class Match {
         this.status = status;
     }
 
-    // --- Domain Rules ---
-    public void validate() {
-        if (isTournamentIdInvalid()) {
-            throw new InvalidMatchTournamentIdException();
-        }
-        if (areTeamsInvalid()) {
-            throw new InvalidMatchTeamsException();
-        }
-        if (isFieldInvalid()) {
-            throw new InvalidMatchFieldException();
-        }
-        if (isMatchDateInvalid()) {
-            throw new InvalidMatchDateException();
-        }
+    // --- Factory Methods ---
+
+    public static Match create(Long tournamentId, Long homeTeamId, Long awayTeamId,
+                               LocalDateTime matchDate, String field) {
+        validateIdentifiers(tournamentId, homeTeamId, awayTeamId);
+        validateMatchDate(matchDate);
+        return new Match(null, tournamentId, homeTeamId, awayTeamId,
+                null, null, matchDate, new MatchField(field), MatchStatus.SCHEDULED);
     }
 
-    private boolean isTournamentIdInvalid() {
-        return tournamentId == null || tournamentId <= 0;
+    public static Match reconstitute(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
+                                     Integer homeTeamScore, Integer awayTeamScore,
+                                     LocalDateTime matchDate, String field, MatchStatus status) {
+        return new Match(id, tournamentId, homeTeamId, awayTeamId,
+                homeTeamScore, awayTeamScore, matchDate, new MatchField(field), status);
     }
 
-    private boolean areTeamsInvalid() {
-        if (homeTeamId == null || homeTeamId <= 0) return true;
-        if (awayTeamId == null || awayTeamId <= 0) return true;
-        return homeTeamId.equals(awayTeamId);
-    }
-
-    private boolean isFieldInvalid() {
-        return field == null || field.trim().isEmpty() || field.length() > 100;
-    }
-
-    private boolean isMatchDateInvalid() {
-        return matchDate == null;
-    }
+    // --- Domain Behavior ---
 
     public void postponeMatch() {
         if (status == MatchStatus.FINISHED) {
@@ -101,65 +73,51 @@ public class Match {
         this.status = MatchStatus.FINISHED;
 
         return isCorrection
-            ? MatchResultOutcome.correction(previousHomeScore, previousAwayScore)
-            : MatchResultOutcome.newResult();
+                ? MatchResultOutcome.correction(previousHomeScore, previousAwayScore)
+                : MatchResultOutcome.newResult();
     }
 
     public void updateMatchDetails(LocalDateTime matchDate, String field) {
         if (status == MatchStatus.FINISHED) {
             throw new InvalidMatchStatusTransitionException("Cannot update details of a finished match");
         }
+        validateMatchDate(matchDate);
         this.matchDate = matchDate;
-        this.field = field;
-        validate();
-    }
-
-    private void validateScore(int homeScore, int awayScore) {
-        if (homeScore < 0 || awayScore < 0) {
-            throw new InvalidMatchScoreException();
-        }
+        this.field = new MatchField(field);
     }
 
     public boolean hasResult() {
         return this.homeTeamScore != null && this.awayTeamScore != null;
     }
 
-    // Getters
-    public Long getId() {
-        return id;
+    // --- Validation Helpers ---
+
+    private static void validateIdentifiers(Long tournamentId, Long homeTeamId, Long awayTeamId) {
+        if (tournamentId == null || tournamentId <= 0) throw new InvalidMatchTournamentIdException();
+        if (homeTeamId == null || homeTeamId <= 0) throw new InvalidMatchTeamsException();
+        if (awayTeamId == null || awayTeamId <= 0) throw new InvalidMatchTeamsException();
+        if (homeTeamId.equals(awayTeamId)) throw new InvalidMatchTeamsException();
     }
 
-    public Long getTournamentId() {
-        return tournamentId;
+    private static void validateMatchDate(LocalDateTime matchDate) {
+        if (matchDate == null) throw new InvalidMatchDateException();
     }
 
-    public Long getHomeTeamId() {
-        return homeTeamId;
+    private void validateScore(int homeScore, int awayScore) {
+        if (homeScore < 0 || awayScore < 0) throw new InvalidMatchScoreException();
     }
 
-    public Long getAwayTeamId() {
-        return awayTeamId;
-    }
+    // --- Getters ---
 
-    public Integer getHomeTeamScore() {
-        return homeTeamScore;
-    }
-
-    public Integer getAwayTeamScore() {
-        return awayTeamScore;
-    }
-
-    public LocalDateTime getMatchDate() {
-        return matchDate;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public MatchStatus getStatus() {
-        return status;
-    }
+    public Long getId() { return id; }
+    public Long getTournamentId() { return tournamentId; }
+    public Long getHomeTeamId() { return homeTeamId; }
+    public Long getAwayTeamId() { return awayTeamId; }
+    public Integer getHomeTeamScore() { return homeTeamScore; }
+    public Integer getAwayTeamScore() { return awayTeamScore; }
+    public LocalDateTime getMatchDate() { return matchDate; }
+    public String getField() { return field.value(); }
+    public MatchStatus getStatus() { return status; }
 
     @Override
     public boolean equals(Object o) {
@@ -172,28 +130,21 @@ public class Match {
                Objects.equals(homeTeamScore, match.homeTeamScore) &&
                Objects.equals(awayTeamScore, match.awayTeamScore) &&
                Objects.equals(matchDate, match.matchDate) &&
-               Objects.equals(field, match.field) &&
+               Objects.equals(getField(), match.getField()) &&
                status == match.status;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentId, homeTeamId, awayTeamId, homeTeamScore,
-                          awayTeamScore, matchDate, field, status);
+        return Objects.hash(id, tournamentId, homeTeamId, awayTeamId,
+                homeTeamScore, awayTeamScore, matchDate, getField(), status);
     }
 
     @Override
     public String toString() {
-        return "Match{" +
-                "id=" + id +
-                ", tournamentId=" + tournamentId +
-                ", homeTeamId=" + homeTeamId +
-                ", awayTeamId=" + awayTeamId +
-                ", homeTeamScore=" + homeTeamScore +
-                ", awayTeamScore=" + awayTeamScore +
-                ", matchDate=" + matchDate +
-                ", field='" + field + '\'' +
-                ", status=" + status +
-                '}';
+        return "Match{id=" + id + ", tournamentId=" + tournamentId +
+               ", homeTeamId=" + homeTeamId + ", awayTeamId=" + awayTeamId +
+               ", homeTeamScore=" + homeTeamScore + ", awayTeamScore=" + awayTeamScore +
+               ", matchDate=" + matchDate + ", field='" + getField() + "', status=" + status + '}';
     }
 }

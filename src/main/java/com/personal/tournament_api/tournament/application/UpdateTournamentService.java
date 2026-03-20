@@ -5,11 +5,9 @@ import com.personal.tournament_api.tournament.domain.TournamentDomainService;
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentNotFoundException;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class UpdateTournamentService implements UpdateTournamentUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(UpdateTournamentService.class);

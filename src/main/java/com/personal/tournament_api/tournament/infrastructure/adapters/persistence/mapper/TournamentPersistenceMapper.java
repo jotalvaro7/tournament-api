@@ -12,7 +12,13 @@ public interface TournamentPersistenceMapper {
 
     TournamentEntity toEntity(Tournament tournament);
 
-    Tournament toDomain(TournamentEntity entity);
+    default Tournament toDomain(TournamentEntity entity) {
+        if (entity == null) return null;
+        return Tournament.reconstitute(entity.getId(), entity.getName(), entity.getDescription(), entity.getStatus());
+    }
 
-    List<Tournament> toDomainList(List<TournamentEntity> entities);
+    default List<Tournament> toDomainList(List<TournamentEntity> entities) {
+        if (entities == null) return null;
+        return entities.stream().map(this::toDomain).toList();
+    }
 }

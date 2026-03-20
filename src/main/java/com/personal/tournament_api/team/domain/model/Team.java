@@ -1,13 +1,16 @@
 package com.personal.tournament_api.team.domain.model;
 
 import com.personal.tournament_api.team.domain.exceptions.*;
+import com.personal.tournament_api.team.domain.model.vo.CoachName;
+import com.personal.tournament_api.team.domain.model.vo.TeamName;
 
 import java.util.Objects;
 
 public class Team {
+
     private final Long id;
-    private String name;
-    private String coach;
+    private TeamName name;
+    private CoachName coach;
     private final Long tournamentId;
     private int points;
     private int matchesPlayed;
@@ -18,27 +21,9 @@ public class Team {
     private int goalsAgainst;
     private int goalDifference;
 
-    // Constructor for create a new Team (with stats at 0)
-    public Team(Long id, String name, String coach, Long tournamentId) {
-        this.id = id;
-        this.name = name;
-        this.coach = coach;
-        this.tournamentId = tournamentId;
-        this.points = 0;
-        this.matchesPlayed = 0;
-        this.matchesWin = 0;
-        this.matchesDraw = 0;
-        this.matchesLost = 0;
-        this.goalsFor = 0;
-        this.goalsAgainst = 0;
-        this.goalDifference = 0;
-        validate();
-    }
-
-    // Constructor to REBUILD from persistence (with all statistics)
-    public Team(Long id, String name, String coach, Long tournamentId,
-                int points, int matchesPlayed, int matchesWin, int matchesDraw,
-                int matchesLost, int goalsFor, int goalsAgainst, int goalDifference) {
+    private Team(Long id, TeamName name, CoachName coach, Long tournamentId,
+                 int points, int matchesPlayed, int matchesWin, int matchesDraw,
+                 int matchesLost, int goalsFor, int goalsAgainst, int goalDifference) {
         this.id = id;
         this.name = name;
         this.coach = coach;
@@ -53,36 +38,27 @@ public class Team {
         this.goalDifference = goalDifference;
     }
 
-    // --- Domain Rules ---
-    public void validate() {
-        if (isNameInvalid()) {
-            throw new InvalidTeamNameException();
-        }
-        if (isCoachInvalid()) {
-            throw new InvalidTeamCoachException();
-        }
-        if (isTournamentIdInvalid()) {
-            throw new InvalidTeamTournamentIdException();
-        }
+    // --- Factory Methods ---
 
+    public static Team create(String name, String coach, Long tournamentId) {
+        validateTournamentId(tournamentId);
+        return new Team(null, new TeamName(name), new CoachName(coach), tournamentId,
+                0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    private boolean isNameInvalid() {
-        return name == null || name.trim().isEmpty() || name.length() > 100 || name.length() < 3;
+    public static Team reconstitute(Long id, String name, String coach, Long tournamentId,
+                                    int points, int matchesPlayed, int matchesWin, int matchesDraw,
+                                    int matchesLost, int goalsFor, int goalsAgainst, int goalDifference) {
+        return new Team(id, new TeamName(name), new CoachName(coach), tournamentId,
+                points, matchesPlayed, matchesWin, matchesDraw,
+                matchesLost, goalsFor, goalsAgainst, goalDifference);
     }
 
-    private boolean isCoachInvalid() {
-        return coach == null || coach.trim().isEmpty() || coach.length() > 100 || coach.length() < 3;
-    }
-
-    private boolean isTournamentIdInvalid() {
-        return tournamentId == null || tournamentId <= 0;
-    }
+    // --- Domain Behavior ---
 
     public void updateDetails(String name, String coach) {
-        this.name = name;
-        this.coach = coach;
-        validate();
+        this.name = new TeamName(name);
+        this.coach = new CoachName(coach);
     }
 
     public void validateCanBeDeleted(int associatedMatchesCount) {
@@ -157,8 +133,8 @@ public class Team {
         this.matchesLost--;
     }
 
-    private void validateGoals(int goalsFor, int goalsAgainst){
-        if(goalsFor < 0 || goalsAgainst < 0){
+    private void validateGoals(int goalsFor, int goalsAgainst) {
+        if (goalsFor < 0 || goalsAgainst < 0) {
             throw new InvalidTeamGoalsException();
         }
     }
@@ -171,7 +147,6 @@ public class Team {
             throw new TeamGoalsDifferenceException();
         }
     }
-
 
     private void applyMatchStats(int goalsFor, int goalsAgainst) {
         this.goalsFor += goalsFor;
@@ -187,82 +162,48 @@ public class Team {
         this.matchesPlayed--;
     }
 
-    // Getters
-    public Long getId() {
-        return id;
+    private static void validateTournamentId(Long tournamentId) {
+        if (tournamentId == null || tournamentId <= 0) {
+            throw new InvalidTeamTournamentIdException();
+        }
     }
 
-    public String getName() {
-        return name;
-    }
+    // --- Getters ---
 
-    public String getCoach() {
-        return coach;
-    }
-
-    public Long getTournamentId() {
-        return tournamentId;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public int getMatchesPlayed() {
-        return matchesPlayed;
-    }
-
-    public int getMatchesWin() {
-        return matchesWin;
-    }
-
-    public int getMatchesDraw() {
-        return matchesDraw;
-    }
-
-    public int getMatchesLost() {
-        return matchesLost;
-    }
-
-    public int getGoalsFor() {
-        return goalsFor;
-    }
-
-    public int getGoalsAgainst() {
-        return goalsAgainst;
-    }
-
-    public int getGoalDifference() {
-        return goalDifference;
-    }
+    public Long getId() { return id; }
+    public String getName() { return name.value(); }
+    public String getCoach() { return coach.value(); }
+    public Long getTournamentId() { return tournamentId; }
+    public int getPoints() { return points; }
+    public int getMatchesPlayed() { return matchesPlayed; }
+    public int getMatchesWin() { return matchesWin; }
+    public int getMatchesDraw() { return matchesDraw; }
+    public int getMatchesLost() { return matchesLost; }
+    public int getGoalsFor() { return goalsFor; }
+    public int getGoalsAgainst() { return goalsAgainst; }
+    public int getGoalDifference() { return goalDifference; }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Team team = (Team) o;
-        return points == team.points && matchesPlayed == team.matchesPlayed && matchesWin == team.matchesWin && matchesDraw == team.matchesDraw && matchesLost == team.matchesLost && goalsFor == team.goalsFor && goalsAgainst == team.goalsAgainst && goalDifference == team.goalDifference && Objects.equals(id, team.id) && Objects.equals(name, team.name) && Objects.equals(coach, team.coach) && Objects.equals(tournamentId, team.tournamentId);
+        return points == team.points && matchesPlayed == team.matchesPlayed &&
+               matchesWin == team.matchesWin && matchesDraw == team.matchesDraw &&
+               matchesLost == team.matchesLost && goalsFor == team.goalsFor &&
+               goalsAgainst == team.goalsAgainst && goalDifference == team.goalDifference &&
+               Objects.equals(id, team.id) && Objects.equals(getName(), team.getName()) &&
+               Objects.equals(getCoach(), team.getCoach()) && Objects.equals(tournamentId, team.tournamentId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, coach, tournamentId, points, matchesPlayed, matchesWin, matchesDraw, matchesLost, goalsFor, goalsAgainst, goalDifference);
+        return Objects.hash(id, getName(), getCoach(), tournamentId, points, matchesPlayed,
+                matchesWin, matchesDraw, matchesLost, goalsFor, goalsAgainst, goalDifference);
     }
 
     @Override
     public String toString() {
-        return "Team{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", coach='" + coach + '\'' +
-                ", tournamentId=" + tournamentId +
-                ", points=" + points +
-                ", matchesPlayed=" + matchesPlayed +
-                ", matchesWin=" + matchesWin +
-                ", matchesDraw=" + matchesDraw +
-                ", matchesLost=" + matchesLost +
-                ", goalsFor=" + goalsFor +
-                ", goalsAgainst=" + goalsAgainst +
-                ", goalDifference=" + goalDifference +
-                '}';
+        return "Team{id=" + id + ", name='" + getName() + "', coach='" + getCoach() +
+               "', tournamentId=" + tournamentId + ", points=" + points + ", matchesPlayed=" + matchesPlayed + '}';
     }
 }

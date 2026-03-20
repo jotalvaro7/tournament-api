@@ -17,7 +17,7 @@ public abstract class TeamPersistenceMapper {
         if (entity == null) {
             return null;
         }
-        return new Team(
+        return Team.reconstitute(
             entity.getId(),
             entity.getName(),
             entity.getCoach(),

@@ -6,11 +6,9 @@ import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import com.personal.tournament_api.match.domain.ports.MatchTeamPort;
 import com.personal.tournament_api.match.domain.services.MatchResultService;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class FinishMatchService implements FinishMatchUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(FinishMatchService.class);
