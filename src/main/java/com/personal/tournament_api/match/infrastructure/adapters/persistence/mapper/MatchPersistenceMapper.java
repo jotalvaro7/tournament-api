@@ -35,7 +35,7 @@ public interface MatchPersistenceMapper {
             return null;
         }
 
-        return new Match(
+        return Match.reconstitute(
                 entity.getId(),
                 entity.getTournamentId(),
                 entity.getHomeTeamId(),

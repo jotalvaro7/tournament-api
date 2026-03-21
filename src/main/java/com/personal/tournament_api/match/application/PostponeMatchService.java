@@ -4,11 +4,9 @@ import com.personal.tournament_api.match.application.usecases.PostponeMatchUseCa
 import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundException;
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class PostponeMatchService implements PostponeMatchUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(PostponeMatchService.class);

@@ -3,11 +3,9 @@ package com.personal.tournament_api.match.application;
 import com.personal.tournament_api.match.application.usecases.CreateMatchUseCase;
 import com.personal.tournament_api.match.domain.model.Match;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class CreateMatchService implements CreateMatchUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(CreateMatchService.class);
@@ -23,8 +21,7 @@ public class CreateMatchService implements CreateMatchUseCase {
         log.info("Creating match between teams {} and {} for tournament {}",
                 command.homeTeamId(), command.awayTeamId(), command.tournamentId());
 
-        Match match = new Match(
-                null,
+        Match match = Match.create(
                 command.tournamentId(),
                 command.homeTeamId(),
                 command.awayTeamId(),

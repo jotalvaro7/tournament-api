@@ -6,11 +6,9 @@ import com.personal.tournament_api.player.domain.ports.PlayerRepository;
 import com.personal.tournament_api.team.domain.exceptions.TeamNotFoundException;
 import com.personal.tournament_api.team.domain.model.Team;
 import com.personal.tournament_api.team.domain.ports.TeamRepository;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Transactional
 public class DeletePlayerService implements DeletePlayerUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(DeletePlayerService.class);

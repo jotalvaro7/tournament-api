@@ -53,9 +53,9 @@ public class MatchController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(required = false) MatchStatus status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "matchDate") String sortBy,
-            @RequestParam(defaultValue = "ASC") String direction) {
+            @RequestParam(defaultValue = "DESC") String direction) {
 
         MatchSearchCriteria criteria = matchFilterBuilder.buildSearchCriteria(specificDate, dateFrom, dateTo, status);
         PageRequest pageRequest = matchFilterBuilder.buildPageRequest(page, size, sortBy, direction);
