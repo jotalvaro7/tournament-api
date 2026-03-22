@@ -41,7 +41,7 @@ class GetMatchServiceTest {
     @DisplayName("Should get match by id when exists")
     void shouldGetMatchByIdWhenExists() {
         // Given
-        Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
 
         // When
@@ -71,8 +71,8 @@ class GetMatchServiceTest {
     void shouldGetAllMatchesByTournamentId() {
         // Given
         List<Match> matches = Arrays.asList(
-                new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A"),
-                new Match(2L, TOURNAMENT_ID, 3L, 4L, VALID_DATE.plusDays(1), "Stadium B")
+                Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED),
+                Match.reconstitute(2L, TOURNAMENT_ID, 3L, 4L, null, null, VALID_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED)
         );
         when(matchRepository.findAllByTournamentId(TOURNAMENT_ID)).thenReturn(matches);
 
@@ -89,8 +89,8 @@ class GetMatchServiceTest {
     void shouldGetAllMatchesByTeamId() {
         // Given
         List<Match> matches = Arrays.asList(
-                new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A"),
-                new Match(2L, TOURNAMENT_ID, HOME_TEAM_ID, 3L, VALID_DATE.plusDays(1), "Stadium B")
+                Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED),
+                Match.reconstitute(2L, TOURNAMENT_ID, HOME_TEAM_ID, 3L, null, null, VALID_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED)
         );
         when(matchRepository.findAllByTeamId(HOME_TEAM_ID)).thenReturn(matches);
 

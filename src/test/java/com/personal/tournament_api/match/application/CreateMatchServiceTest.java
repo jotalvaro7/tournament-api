@@ -40,7 +40,7 @@ class CreateMatchServiceTest {
     void shouldCreateMatchSuccessfully() {
         // Given
         CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Match expected = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
         when(matchRepository.save(any())).thenReturn(expected);
 
@@ -59,7 +59,7 @@ class CreateMatchServiceTest {
     void shouldSaveMatchWithCorrectData() {
         // Given
         CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Match expected = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
         when(matchRepository.save(any())).thenReturn(expected);
 

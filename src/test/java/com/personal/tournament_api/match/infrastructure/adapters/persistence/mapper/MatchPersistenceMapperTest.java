@@ -29,7 +29,7 @@ class MatchPersistenceMapperTest {
     @DisplayName("Should map domain Match to MatchEntity")
     void shouldMapDomainMatchToEntity() {
         // Given
-        Match match = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+        Match match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
         // When
         MatchEntity entity = mapper.toEntity(match);
@@ -51,7 +51,7 @@ class MatchPersistenceMapperTest {
     @DisplayName("Should map domain Match with scores to MatchEntity")
     void shouldMapDomainMatchWithScoresToEntity() {
         // Given
-        Match match = new Match(1L, 10L, 1L, 2L, 3, 1,
+        Match match = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1,
             TEST_DATE, "Stadium A", MatchStatus.FINISHED);
 
         // When
@@ -172,18 +172,18 @@ class MatchPersistenceMapperTest {
     @DisplayName("Should preserve all match statuses in mapping")
     void shouldPreserveAllMatchStatusesInMapping() {
         // Given & When & Then - SCHEDULED
-        Match scheduledMatch = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+        Match scheduledMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
         MatchEntity scheduledEntity = mapper.toEntity(scheduledMatch);
         assertEquals(MatchStatus.SCHEDULED, scheduledEntity.getStatus());
 
         // Given & When & Then - FINISHED
-        Match finishedMatch = new Match(2L, 10L, 1L, 2L, 3, 1,
+        Match finishedMatch = Match.reconstitute(2L, 10L, 1L, 2L, 3, 1,
             TEST_DATE, "Stadium A", MatchStatus.FINISHED);
         MatchEntity finishedEntity = mapper.toEntity(finishedMatch);
         assertEquals(MatchStatus.FINISHED, finishedEntity.getStatus());
 
         // Given & When & Then - POSTPONED
-        Match postponedMatch = new Match(3L, 10L, 1L, 2L, null, null,
+        Match postponedMatch = Match.reconstitute(3L, 10L, 1L, 2L, null, null,
             TEST_DATE, "Stadium A", MatchStatus.POSTPONED);
         MatchEntity postponedEntity = mapper.toEntity(postponedMatch);
         assertEquals(MatchStatus.POSTPONED, postponedEntity.getStatus());

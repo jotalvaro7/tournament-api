@@ -45,7 +45,7 @@ class MatchResultServiceTest {
         @DisplayName("Should register new result and delegate stats to team port")
         void shouldRegisterNewResultAndDelegateStatsToTeamPort() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When
             MatchResultOutcome outcome = matchResultService.registerResult(match, teamPort, 3, 1);
@@ -67,7 +67,7 @@ class MatchResultServiceTest {
         @DisplayName("Should register draw result")
         void shouldRegisterDrawResult() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When
             MatchResultOutcome outcome = matchResultService.registerResult(match, teamPort, 2, 2);
@@ -83,7 +83,7 @@ class MatchResultServiceTest {
         @DisplayName("Should register result with zero scores")
         void shouldRegisterResultWithZeroScores() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When
             matchResultService.registerResult(match, teamPort, 0, 0);
@@ -102,7 +102,7 @@ class MatchResultServiceTest {
         @DisplayName("Should correct result reversing previous stats before applying new ones")
         void shouldCorrectResultReversingPreviousStats() {
             // Given — Match finished with draw 2-2
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 2, 2,
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 2, 2,
                     VALID_DATE, "Stadium A", MatchStatus.FINISHED);
 
             // When — Correct to 3-1 (home victory)
@@ -126,7 +126,7 @@ class MatchResultServiceTest {
         @DisplayName("Should correct victory to defeat")
         void shouldCorrectVictoryToDefeat() {
             // Given — Match finished with 3-0 (home victory)
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 3, 0,
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 3, 0,
                     VALID_DATE, "Stadium A", MatchStatus.FINISHED);
 
             // When — Correct to 0-2 (away victory)
@@ -149,7 +149,7 @@ class MatchResultServiceTest {
         @DisplayName("Should delegate tournament validation to team port")
         void shouldDelegateTournamentValidationToTeamPort() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When
             matchResultService.registerResult(match, teamPort, 3, 1);
@@ -163,7 +163,7 @@ class MatchResultServiceTest {
         @DisplayName("Should propagate exception when team port throws validation error")
         void shouldPropagateExceptionWhenPortThrowsValidationError() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
             doThrow(new InvalidMatchDataException("Home team does not belong to tournament"))
                     .when(teamPort).validateBelongsToTournament(HOME_TEAM_ID, TOURNAMENT_ID);
 
@@ -183,7 +183,7 @@ class MatchResultServiceTest {
         @DisplayName("Should reverse match stats when match has result")
         void shouldReverseMatchStatsWhenMatchHasResult() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 3, 1,
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 3, 1,
                     VALID_DATE, "Stadium A", MatchStatus.FINISHED);
 
             // When
@@ -200,7 +200,7 @@ class MatchResultServiceTest {
         @DisplayName("Should do nothing when match has no result")
         void shouldDoNothingWhenMatchHasNoResult() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When
             matchResultService.prepareMatchForDeletion(match, teamPort);
@@ -218,7 +218,7 @@ class MatchResultServiceTest {
         @DisplayName("Should revert match result stats")
         void shouldRevertMatchResultStats() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 2, 0,
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, 2, 0,
                     VALID_DATE, "Stadium A", MatchStatus.FINISHED);
 
             // When
@@ -233,7 +233,7 @@ class MatchResultServiceTest {
         @DisplayName("Should throw exception when reverting match without result")
         void shouldThrowExceptionWhenRevertingMatchWithoutResult() {
             // Given
-            Match match = new Match(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+            Match match = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
             // When & Then
             assertThrows(InvalidMatchDataException.class,

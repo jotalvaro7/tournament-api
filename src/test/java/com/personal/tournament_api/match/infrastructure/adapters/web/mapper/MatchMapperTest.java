@@ -87,7 +87,7 @@ class MatchMapperTest {
     @DisplayName("Should map Match to MatchResponseDTO")
     void shouldMapMatchToResponse() {
         // Given
-        Match match = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+        Match match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
         // When
         MatchResponseDTO response = mapper.toResponse(match);
@@ -109,7 +109,7 @@ class MatchMapperTest {
     @DisplayName("Should map Match with scores to MatchResponseDTO")
     void shouldMapMatchWithScoresToResponse() {
         // Given
-        Match match = new Match(1L, 10L, 1L, 2L, 3, 1,
+        Match match = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1,
             TEST_DATE, "Stadium A", MatchStatus.FINISHED);
 
         // When
@@ -126,8 +126,8 @@ class MatchMapperTest {
     @DisplayName("Should map list of matches to list of responses")
     void shouldMapListOfMatchesToResponses() {
         // Given
-        Match match1 = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
-        Match match2 = new Match(2L, 10L, 3L, 4L, 2, 1,
+        Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match match2 = Match.reconstitute(2L, 10L, 3L, 4L, 2, 1,
             TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED);
         List<Match> matches = Arrays.asList(match1, match2);
 
@@ -177,18 +177,18 @@ class MatchMapperTest {
     @DisplayName("Should preserve match status in response mapping")
     void shouldPreserveMatchStatusInResponseMapping() {
         // Given & When & Then - SCHEDULED
-        Match scheduledMatch = new Match(1L, 10L, 1L, 2L, TEST_DATE, "Stadium A");
+        Match scheduledMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
         MatchResponseDTO scheduledResponse = mapper.toResponse(scheduledMatch);
         assertEquals(MatchStatus.SCHEDULED, scheduledResponse.status());
 
         // Given & When & Then - FINISHED
-        Match finishedMatch = new Match(2L, 10L, 1L, 2L, 3, 1,
+        Match finishedMatch = Match.reconstitute(2L, 10L, 1L, 2L, 3, 1,
             TEST_DATE, "Stadium A", MatchStatus.FINISHED);
         MatchResponseDTO finishedResponse = mapper.toResponse(finishedMatch);
         assertEquals(MatchStatus.FINISHED, finishedResponse.status());
 
         // Given & When & Then - POSTPONED
-        Match postponedMatch = new Match(3L, 10L, 1L, 2L, null, null,
+        Match postponedMatch = Match.reconstitute(3L, 10L, 1L, 2L, null, null,
             TEST_DATE, "Stadium A", MatchStatus.POSTPONED);
         MatchResponseDTO postponedResponse = mapper.toResponse(postponedMatch);
         assertEquals(MatchStatus.POSTPONED, postponedResponse.status());

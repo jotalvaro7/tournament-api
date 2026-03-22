@@ -3,6 +3,7 @@ package com.personal.tournament_api.match.application;
 import com.personal.tournament_api.match.application.usecases.UpdateMatchUseCase.UpdateMatchCommand;
 import com.personal.tournament_api.match.domain.exceptions.MatchNotFoundException;
 import com.personal.tournament_api.match.domain.model.Match;
+import com.personal.tournament_api.match.domain.model.MatchStatus;
 import com.personal.tournament_api.match.domain.ports.MatchRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +42,7 @@ class UpdateMatchServiceTest {
     @DisplayName("Should update match successfully")
     void shouldUpdateMatchSuccessfully() {
         // Given
-        Match existing = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+        Match existing = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
         LocalDateTime newDate = VALID_DATE.plusDays(1);
         UpdateMatchCommand command = new UpdateMatchCommand(MATCH_ID, newDate, "Stadium B");
 

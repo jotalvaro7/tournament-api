@@ -41,7 +41,7 @@ class PostponeMatchServiceTest {
     @DisplayName("Should postpone match successfully")
     void shouldPostponeMatchSuccessfully() {
         // Given
-        Match match = new Match(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
+        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
         when(matchRepository.save(any(Match.class))).thenReturn(match);
