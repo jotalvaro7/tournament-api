@@ -26,7 +26,7 @@ class TeamPersistenceMapperTest {
     @DisplayName("Should map Team domain model to TeamEntity correctly")
     void shouldMapToEntity() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         // Simulate some match results
         team.registerVictory(3, 1);
@@ -185,7 +185,7 @@ class TeamPersistenceMapperTest {
     @DisplayName("Should map Team to Entity preserving all statistics")
     void shouldMapToEntityPreservingStatistics() {
         // Given - Create a team with statistics
-        Team originalTeam = new Team(5L, "Atletico Madrid", "Diego Simeone", 15L);
+        Team originalTeam = Team.reconstitute(5L, "Atletico Madrid", "Diego Simeone", 15L, 0, 0, 0, 0, 0, 0, 0, 0);
         originalTeam.registerVictory(2, 1);
         originalTeam.registerDraw(0, 0);
         originalTeam.registerDefeat(1, 2);

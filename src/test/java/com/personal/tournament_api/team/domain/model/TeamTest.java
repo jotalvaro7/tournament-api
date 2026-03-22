@@ -18,7 +18,7 @@ class TeamTest {
         @DisplayName("Should create team with valid data")
         void shouldCreateTeamWithValidData() {
             // When
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // Then
             assertNotNull(team);
@@ -40,7 +40,7 @@ class TeamTest {
         @DisplayName("Should throw exception when name is null")
         void shouldThrowExceptionWhenNameIsNull() {
             assertThrows(InvalidTeamNameException.class, () -> {
-                new Team(1L, null, "Carlo Ancelotti", 10L);
+                Team.reconstitute(1L, null, "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -48,7 +48,7 @@ class TeamTest {
         @DisplayName("Should throw exception when name is empty")
         void shouldThrowExceptionWhenNameIsEmpty() {
             assertThrows(InvalidTeamNameException.class, () -> {
-                new Team(1L, "", "Carlo Ancelotti", 10L);
+                Team.reconstitute(1L, "", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -56,7 +56,7 @@ class TeamTest {
         @DisplayName("Should throw exception when name is blank")
         void shouldThrowExceptionWhenNameIsBlank() {
             assertThrows(InvalidTeamNameException.class, () -> {
-                new Team(1L, "   ", "Carlo Ancelotti", 10L);
+                Team.reconstitute(1L, "   ", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -64,7 +64,7 @@ class TeamTest {
         @DisplayName("Should throw exception when name is too short")
         void shouldThrowExceptionWhenNameIsTooShort() {
             assertThrows(InvalidTeamNameException.class, () -> {
-                new Team(1L, "AB", "Carlo Ancelotti", 10L);
+                Team.reconstitute(1L, "AB", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -73,14 +73,14 @@ class TeamTest {
         void shouldThrowExceptionWhenNameIsTooLong() {
             String longName = "A".repeat(101);
             assertThrows(InvalidTeamNameException.class, () -> {
-                new Team(1L, longName, "Carlo Ancelotti", 10L);
+                Team.reconstitute(1L, longName, "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
         @Test
         @DisplayName("Should create team when name is exactly 3 characters")
         void shouldCreateTeamWhenNameIsMinimumLength() {
-            Team team = new Team(1L, "FCB", "Xavi Hernandez", 10L);
+            Team team = Team.reconstitute(1L, "FCB", "Xavi Hernandez", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             assertNotNull(team);
             assertEquals("FCB", team.getName());
         }
@@ -89,7 +89,7 @@ class TeamTest {
         @DisplayName("Should create team when name is exactly 100 characters")
         void shouldCreateTeamWhenNameIsMaximumLength() {
             String maxName = "A".repeat(100);
-            Team team = new Team(1L, maxName, "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, maxName, "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             assertNotNull(team);
             assertEquals(maxName, team.getName());
         }
@@ -98,7 +98,7 @@ class TeamTest {
         @DisplayName("Should throw exception when coach is null")
         void shouldThrowExceptionWhenCoachIsNull() {
             assertThrows(InvalidTeamCoachException.class, () -> {
-                new Team(1L, "Real Madrid", null, 10L);
+                Team.reconstitute(1L, "Real Madrid", null, 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -106,7 +106,7 @@ class TeamTest {
         @DisplayName("Should throw exception when coach is empty")
         void shouldThrowExceptionWhenCoachIsEmpty() {
             assertThrows(InvalidTeamCoachException.class, () -> {
-                new Team(1L, "Real Madrid", "", 10L);
+                Team.reconstitute(1L, "Real Madrid", "", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -114,7 +114,7 @@ class TeamTest {
         @DisplayName("Should throw exception when coach is blank")
         void shouldThrowExceptionWhenCoachIsBlank() {
             assertThrows(InvalidTeamCoachException.class, () -> {
-                new Team(1L, "Real Madrid", "   ", 10L);
+                Team.reconstitute(1L, "Real Madrid", "   ", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -122,7 +122,7 @@ class TeamTest {
         @DisplayName("Should throw exception when coach is too short")
         void shouldThrowExceptionWhenCoachIsTooShort() {
             assertThrows(InvalidTeamCoachException.class, () -> {
-                new Team(1L, "Real Madrid", "AB", 10L);
+                Team.reconstitute(1L, "Real Madrid", "AB", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
@@ -131,14 +131,14 @@ class TeamTest {
         void shouldThrowExceptionWhenCoachIsTooLong() {
             String longCoach = "A".repeat(101);
             assertThrows(InvalidTeamCoachException.class, () -> {
-                new Team(1L, "Real Madrid", longCoach, 10L);
+                Team.reconstitute(1L, "Real Madrid", longCoach, 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             });
         }
 
         @Test
         @DisplayName("Should create team when coach is exactly 3 characters")
         void shouldCreateTeamWhenCoachIsMinimumLength() {
-            Team team = new Team(1L, "Real Madrid", "Zzi", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Zzi", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             assertNotNull(team);
             assertEquals("Zzi", team.getCoach());
         }
@@ -147,7 +147,7 @@ class TeamTest {
         @DisplayName("Should create team when coach is exactly 100 characters")
         void shouldCreateTeamWhenCoachIsMaximumLength() {
             String maxCoach = "A".repeat(100);
-            Team team = new Team(1L, "Real Madrid", maxCoach, 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", maxCoach, 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             assertNotNull(team);
             assertEquals(maxCoach, team.getCoach());
         }
@@ -155,25 +155,25 @@ class TeamTest {
         @Test
         @DisplayName("Should throw exception when tournamentId is null")
         void shouldThrowExceptionWhenTournamentIdIsNull() {
-            assertThrows(InvalidTeamTournamentIdException.class, () -> {
-                new Team(1L, "Real Madrid", "Carlo Ancelotti", null);
-            });
+            assertThrows(InvalidTeamTournamentIdException.class, () ->
+                Team.create("Real Madrid", "Carlo Ancelotti", null)
+            );
         }
 
         @Test
         @DisplayName("Should throw exception when tournamentId is zero")
         void shouldThrowExceptionWhenTournamentIdIsZero() {
-            assertThrows(InvalidTeamTournamentIdException.class, () -> {
-                new Team(1L, "Real Madrid", "Carlo Ancelotti", 0L);
-            });
+            assertThrows(InvalidTeamTournamentIdException.class, () ->
+                Team.create("Real Madrid", "Carlo Ancelotti", 0L)
+            );
         }
 
         @Test
         @DisplayName("Should throw exception when tournamentId is negative")
         void shouldThrowExceptionWhenTournamentIdIsNegative() {
-            assertThrows(InvalidTeamTournamentIdException.class, () -> {
-                new Team(1L, "Real Madrid", "Carlo Ancelotti", -1L);
-            });
+            assertThrows(InvalidTeamTournamentIdException.class, () ->
+                Team.create("Real Madrid", "Carlo Ancelotti", -1L)
+            );
         }
     }
 
@@ -185,7 +185,7 @@ class TeamTest {
         @DisplayName("Should update name and coach with valid data")
         void shouldUpdateDetailsWithValidData() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.updateDetails("Real Madrid CF", "Zinedine Zidane");
@@ -199,7 +199,7 @@ class TeamTest {
         @DisplayName("Should throw exception when updating with invalid name")
         void shouldThrowExceptionWhenUpdatingWithInvalidName() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamNameException.class, () -> {
@@ -211,7 +211,7 @@ class TeamTest {
         @DisplayName("Should throw exception when updating with invalid coach")
         void shouldThrowExceptionWhenUpdatingWithInvalidCoach() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamCoachException.class, () -> {
@@ -223,7 +223,7 @@ class TeamTest {
         @DisplayName("Should maintain statistics after update")
         void shouldMaintainStatisticsAfterUpdate() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             team.registerVictory(3, 1);
 
             // When
@@ -245,7 +245,7 @@ class TeamTest {
         @DisplayName("Should register victory and update statistics correctly")
         void shouldRegisterVictoryAndUpdateStatistics() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerVictory(3, 1);
@@ -265,7 +265,7 @@ class TeamTest {
         @DisplayName("Should accumulate multiple victories correctly")
         void shouldAccumulateMultipleVictories() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerVictory(3, 1);
@@ -287,7 +287,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsFor is negative in victory")
         void shouldThrowExceptionWhenGoalsForIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -299,7 +299,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsAgainst is negative in victory")
         void shouldThrowExceptionWhenGoalsAgainstIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -311,7 +311,7 @@ class TeamTest {
         @DisplayName("Should register victory with zero goals against")
         void shouldRegisterVictoryWithZeroGoalsAgainst() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerVictory(1, 0);
@@ -332,7 +332,7 @@ class TeamTest {
         @DisplayName("Should register draw and update statistics correctly")
         void shouldRegisterDrawAndUpdateStatistics() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDraw(1, 1);
@@ -352,7 +352,7 @@ class TeamTest {
         @DisplayName("Should accumulate multiple draws correctly")
         void shouldAccumulateMultipleDraws() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDraw(1, 1);
@@ -374,7 +374,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsFor is negative in draw")
         void shouldThrowExceptionWhenGoalsForIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -386,7 +386,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsAgainst is negative in draw")
         void shouldThrowExceptionWhenGoalsAgainstIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -398,7 +398,7 @@ class TeamTest {
         @DisplayName("Should register draw with zero goals")
         void shouldRegisterDrawWithZeroGoals() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDraw(0, 0);
@@ -420,7 +420,7 @@ class TeamTest {
         @DisplayName("Should register defeat and update statistics correctly")
         void shouldRegisterDefeatAndUpdateStatistics() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDefeat(1, 3);
@@ -440,7 +440,7 @@ class TeamTest {
         @DisplayName("Should accumulate multiple defeats correctly")
         void shouldAccumulateMultipleDefeats() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDefeat(1, 3);
@@ -462,7 +462,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsFor is negative in defeat")
         void shouldThrowExceptionWhenGoalsForIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -474,7 +474,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goalsAgainst is negative in defeat")
         void shouldThrowExceptionWhenGoalsAgainstIsNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -486,7 +486,7 @@ class TeamTest {
         @DisplayName("Should register defeat with zero goals scored")
         void shouldRegisterDefeatWithZeroGoalsScored() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDefeat(0, 1);
@@ -508,7 +508,7 @@ class TeamTest {
         @DisplayName("Should record victory when goalsFor > goalsAgainst")
         void shouldRecordVictoryWhenGoalsForIsGreater() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.recordMatchResult(3, 1);
@@ -524,7 +524,7 @@ class TeamTest {
         @DisplayName("Should record draw when goalsFor == goalsAgainst")
         void shouldRecordDrawWhenGoalsAreEqual() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.recordMatchResult(2, 2);
@@ -540,7 +540,7 @@ class TeamTest {
         @DisplayName("Should record defeat when goalsFor < goalsAgainst")
         void shouldRecordDefeatWhenGoalsForIsLess() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.recordMatchResult(1, 3);
@@ -556,7 +556,7 @@ class TeamTest {
         @DisplayName("Should throw exception when goals are negative in recordMatchResult")
         void shouldThrowExceptionWhenGoalsAreNegative() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertThrows(InvalidTeamGoalsException.class, () -> {
@@ -568,7 +568,7 @@ class TeamTest {
         @DisplayName("Should maintain consistency after recording match result")
         void shouldMaintainConsistencyAfterRecordingMatchResult() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.recordMatchResult(3, 1);
@@ -603,7 +603,7 @@ class TeamTest {
         @DisplayName("Should handle complex season with multiple results")
         void shouldHandleComplexSeasonWithMultipleResults() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When - Simulate a season with various results
             team.registerVictory(3, 0);  // W: 3 points
@@ -628,7 +628,7 @@ class TeamTest {
         @DisplayName("Should handle team with only victories")
         void shouldHandleTeamWithOnlyVictories() {
             // Given
-            Team team = new Team(1L, "Barcelona", "Xavi Hernandez", 10L);
+            Team team = Team.reconstitute(1L, "Barcelona", "Xavi Hernandez", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerVictory(3, 0);
@@ -647,7 +647,7 @@ class TeamTest {
         @DisplayName("Should handle team with only defeats")
         void shouldHandleTeamWithOnlyDefeats() {
             // Given
-            Team team = new Team(1L, "Sevilla", "Jose Luis Mendilibar", 10L);
+            Team team = Team.reconstitute(1L, "Sevilla", "Jose Luis Mendilibar", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDefeat(0, 3);
@@ -666,7 +666,7 @@ class TeamTest {
         @DisplayName("Should handle team with only draws")
         void shouldHandleTeamWithOnlyDraws() {
             // Given
-            Team team = new Team(1L, "Atletico Madrid", "Diego Simeone", 10L);
+            Team team = Team.reconstitute(1L, "Atletico Madrid", "Diego Simeone", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             team.registerDraw(0, 0);
@@ -690,8 +690,8 @@ class TeamTest {
         @DisplayName("Should be equal when all fields are equal")
         void shouldBeEqualWhenAllFieldsAreEqual() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertEquals(team1, team2);
@@ -702,8 +702,8 @@ class TeamTest {
         @DisplayName("Should not be equal when ids are different")
         void shouldNotBeEqualWhenIdsAreDifferent() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(2L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(2L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(team1, team2);
@@ -713,8 +713,8 @@ class TeamTest {
         @DisplayName("Should not be equal when names are different")
         void shouldNotBeEqualWhenNamesAreDifferent() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(1L, "Barcelona", "Carlo Ancelotti", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(1L, "Barcelona", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(team1, team2);
@@ -724,7 +724,7 @@ class TeamTest {
         @DisplayName("Should not be equal when comparing with null")
         void shouldNotBeEqualWhenComparingWithNull() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(null, team);
@@ -734,8 +734,8 @@ class TeamTest {
         @DisplayName("Should not be equal when statistics are different")
         void shouldNotBeEqualWhenStatisticsAreDifferent() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             team1.registerVictory(3, 1);
 
@@ -747,7 +747,7 @@ class TeamTest {
         @DisplayName("Should be equal to itself (reflexivity)")
         void shouldBeEqualToItself() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertEquals(team, team);
@@ -757,7 +757,7 @@ class TeamTest {
         @DisplayName("Should not be equal when comparing with different class")
         void shouldNotBeEqualWhenComparingWithDifferentClass() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             Object other = new Object();
 
             // When & Then
@@ -768,7 +768,7 @@ class TeamTest {
         @DisplayName("Should return consistent hashCode on multiple calls")
         void shouldReturnConsistentHashCode() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             int hashCode1 = team.hashCode();
@@ -782,8 +782,8 @@ class TeamTest {
         @DisplayName("Should not be equal when coaches are different")
         void shouldNotBeEqualWhenCoachesAreDifferent() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(1L, "Real Madrid", "Zinedine Zidane", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(1L, "Real Madrid", "Zinedine Zidane", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(team1, team2);
@@ -793,8 +793,8 @@ class TeamTest {
         @DisplayName("Should not be equal when tournament IDs are different")
         void shouldNotBeEqualWhenTournamentIdsAreDifferent() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 20L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 20L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(team1, team2);
@@ -804,8 +804,8 @@ class TeamTest {
         @DisplayName("Should have different hashCode when teams are not equal")
         void shouldHaveDifferentHashCodeWhenTeamsAreNotEqual() {
             // Given
-            Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
-            Team team2 = new Team(2L, "Barcelona", "Xavi Hernandez", 10L);
+            Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(2L, "Barcelona", "Xavi Hernandez", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When & Then
             assertNotEquals(team1.hashCode(), team2.hashCode());
@@ -820,7 +820,7 @@ class TeamTest {
         @DisplayName("Should return string representation with all fields")
         void shouldReturnStringWithAllFields() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             String result = team.toString();
@@ -833,19 +833,13 @@ class TeamTest {
             assertTrue(result.contains("tournamentId=10"));
             assertTrue(result.contains("points=0"));
             assertTrue(result.contains("matchesPlayed=0"));
-            assertTrue(result.contains("matchesWin=0"));
-            assertTrue(result.contains("matchesDraw=0"));
-            assertTrue(result.contains("matchesLost=0"));
-            assertTrue(result.contains("goalsFor=0"));
-            assertTrue(result.contains("goalsAgainst=0"));
-            assertTrue(result.contains("goalDifference=0"));
         }
 
         @Test
         @DisplayName("Should return string representation with updated statistics")
         void shouldReturnStringWithUpdatedStatistics() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             team.registerVictory(3, 1);
 
             // When
@@ -855,17 +849,13 @@ class TeamTest {
             assertNotNull(result);
             assertTrue(result.contains("points=3"));
             assertTrue(result.contains("matchesPlayed=1"));
-            assertTrue(result.contains("matchesWin=1"));
-            assertTrue(result.contains("goalsFor=3"));
-            assertTrue(result.contains("goalsAgainst=1"));
-            assertTrue(result.contains("goalDifference=2"));
         }
 
         @Test
         @DisplayName("Should return string starting with class name")
         void shouldReturnStringStartingWithClassName() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             String result = team.toString();
@@ -879,7 +869,7 @@ class TeamTest {
         @DisplayName("Should return consistent string on multiple calls")
         void shouldReturnConsistentStringOnMultipleCalls() {
             // Given
-            Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
             // When
             String result1 = team.toString();

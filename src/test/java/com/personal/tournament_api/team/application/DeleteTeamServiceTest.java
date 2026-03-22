@@ -41,7 +41,7 @@ class DeleteTeamServiceTest {
     @DisplayName("Should delete team and publish event when no associated matches")
     void shouldDeleteTeamSuccessfully() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamMatchesPort.countByTeamId(1L)).thenReturn(0);
@@ -59,7 +59,7 @@ class DeleteTeamServiceTest {
     @DisplayName("Should publish event with correct teamId")
     void shouldPublishEventWithCorrectTeamId() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamMatchesPort.countByTeamId(1L)).thenReturn(0);
@@ -91,7 +91,7 @@ class DeleteTeamServiceTest {
     @DisplayName("Should throw TeamHasMatchesException when team has associated matches")
     void shouldThrowExceptionWhenTeamHasMatches() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
         when(teamMatchesPort.countByTeamId(1L)).thenReturn(2);

@@ -37,7 +37,7 @@ class UpdateTeamServiceTest {
     @DisplayName("Should update team successfully")
     void shouldUpdateTeamSuccessfully() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
         UpdateTeamCommand command = new UpdateTeamCommand(1L, "Real Madrid CF", "Carlo Ancelotti");
 
         doNothing().when(teamDomainService).validateUniqueNameForUpdate(eq("Real Madrid CF"), eq(1L), eq(teamRepository));

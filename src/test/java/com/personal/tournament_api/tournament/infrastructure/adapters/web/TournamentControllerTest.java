@@ -1,6 +1,8 @@
 package com.personal.tournament_api.tournament.infrastructure.adapters.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.tournament_api.auth.infrastructure.security.JwtProvider;
+import com.personal.tournament_api.auth.infrastructure.security.UserDetailsServiceAdapter;
 import com.personal.tournament_api.tournament.application.usecases.*;
 import com.personal.tournament_api.tournament.domain.enums.StatusTournament;
 import com.personal.tournament_api.tournament.domain.exceptions.DuplicateTournamentNameException;
@@ -15,8 +17,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.personal.tournament_api.config.TestSecurityConfig;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TournamentController.class)
+@Import(TestSecurityConfig.class)
 @DisplayName("Tournament Controller Integration Tests")
 class TournamentControllerTest {
 
@@ -65,8 +70,14 @@ class TournamentControllerTest {
     @MockBean
     private TournamentMapper tournamentMapper;
 
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private UserDetailsServiceAdapter userDetailsServiceAdapter;
+
     @Nested
-    @DisplayName("Create Tournament Tests")
+@DisplayName("Create Tournament Tests")
     class CreateTournamentTests {
 
         @Test
@@ -74,7 +85,7 @@ class TournamentControllerTest {
         void shouldCreateTournamentSuccessfully() throws Exception {
             // Given
             TournamentRequest request = new TournamentRequest("La Liga", "Spanish Football Championship");
-            Tournament createdTournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament createdTournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             TournamentResponse response = new TournamentResponse(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             when(tournamentMapper.toCreateCommand(any(TournamentRequest.class)))
@@ -154,8 +165,8 @@ class TournamentControllerTest {
         @DisplayName("Should get all tournaments successfully")
         void shouldGetAllTournamentsSuccessfully() throws Exception {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(2L, "Premier League", "English Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(2L, "Premier League", "English Football Championship", StatusTournament.CREATED);
             List<Tournament> tournaments = Arrays.asList(tournament1, tournament2);
 
             TournamentResponse response1 = new TournamentResponse(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
@@ -179,7 +190,7 @@ class TournamentControllerTest {
         void shouldGetTournamentByIdSuccessfully() throws Exception {
             // Given
             Long tournamentId = 1L;
-            Tournament tournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             TournamentResponse response = new TournamentResponse(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             when(getTournamentUseCase.getById(tournamentId)).thenReturn(Optional.of(tournament));
@@ -210,7 +221,7 @@ class TournamentControllerTest {
     }
 
     @Nested
-    @DisplayName("Update Tournament Tests")
+@DisplayName("Update Tournament Tests")
     class UpdateTournamentTests {
 
         @Test
@@ -219,7 +230,7 @@ class TournamentControllerTest {
             // Given
             Long tournamentId = 1L;
             TournamentRequest request = new TournamentRequest("La Liga Santander", "Updated Description Here");
-            Tournament updatedTournament = new Tournament(tournamentId, "La Liga Santander", "Updated Description Here");
+            Tournament updatedTournament = Tournament.reconstitute(tournamentId, "La Liga Santander", "Updated Description Here", StatusTournament.CREATED);
             TournamentResponse response = new TournamentResponse(tournamentId, "La Liga Santander", "Updated Description Here", StatusTournament.CREATED);
 
             when(tournamentMapper.toUpdateCommand(anyLong(), any(TournamentRequest.class)))
@@ -281,7 +292,7 @@ class TournamentControllerTest {
     }
 
     @Nested
-    @DisplayName("Start Tournament Tests")
+@DisplayName("Start Tournament Tests")
     class StartTournamentTests {
 
         @Test
@@ -289,7 +300,7 @@ class TournamentControllerTest {
         void shouldStartTournamentSuccessfully() throws Exception {
             // Given
             Long tournamentId = 1L;
-            Tournament startedTournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
+            Tournament startedTournament = Tournament.reconstitute(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             startedTournament.startTournament();
             TournamentResponse response = new TournamentResponse(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.IN_PROGRESS);
 
@@ -336,7 +347,7 @@ class TournamentControllerTest {
     }
 
     @Nested
-    @DisplayName("End Tournament Tests")
+@DisplayName("End Tournament Tests")
     class EndTournamentTests {
 
         @Test
@@ -344,7 +355,7 @@ class TournamentControllerTest {
         void shouldEndTournamentSuccessfully() throws Exception {
             // Given
             Long tournamentId = 1L;
-            Tournament endedTournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
+            Tournament endedTournament = Tournament.reconstitute(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             endedTournament.startTournament();
             endedTournament.endTournament();
             TournamentResponse response = new TournamentResponse(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.COMPLETED);
@@ -392,7 +403,7 @@ class TournamentControllerTest {
     }
 
     @Nested
-    @DisplayName("Cancel Tournament Tests")
+@DisplayName("Cancel Tournament Tests")
     class CancelTournamentTests {
 
         @Test
@@ -400,7 +411,7 @@ class TournamentControllerTest {
         void shouldCancelTournamentSuccessfully() throws Exception {
             // Given
             Long tournamentId = 1L;
-            Tournament cancelledTournament = new Tournament(tournamentId, "La Liga", "Spanish Football Championship");
+            Tournament cancelledTournament = Tournament.reconstitute(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             cancelledTournament.cancelTournament();
             TournamentResponse response = new TournamentResponse(tournamentId, "La Liga", "Spanish Football Championship", StatusTournament.CANCELLED);
 
@@ -447,7 +458,7 @@ class TournamentControllerTest {
     }
 
     @Nested
-    @DisplayName("Delete Tournament Tests")
+@DisplayName("Delete Tournament Tests")
     class DeleteTournamentTests {
 
         @Test

@@ -2,6 +2,7 @@ package com.personal.tournament_api.tournament.application;
 
 import com.personal.tournament_api.tournament.application.usecases.UpdateTournamentUseCase.UpdateTournamentCommand;
 import com.personal.tournament_api.tournament.domain.TournamentDomainService;
+import com.personal.tournament_api.tournament.domain.enums.StatusTournament;
 import com.personal.tournament_api.tournament.domain.exceptions.DuplicateTournamentNameException;
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentNotFoundException;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
@@ -39,8 +40,8 @@ class UpdateTournamentServiceTest {
         // Given
         Long id = 1L;
         UpdateTournamentCommand command = new UpdateTournamentCommand(id, "La Liga Santander", "Updated");
-        Tournament existing = new Tournament(id, "La Liga", "Spanish Championship");
-        Tournament updated = new Tournament(id, "La Liga Santander", "Updated");
+        Tournament existing = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
+        Tournament updated = Tournament.reconstitute(id, "La Liga Santander", "Updated", StatusTournament.CREATED);
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(existing));
         doNothing().when(tournamentDomainService).validateUniqueNameForUpdate(anyString(), anyLong(), any());
@@ -75,7 +76,7 @@ class UpdateTournamentServiceTest {
         // Given
         Long id = 1L;
         UpdateTournamentCommand command = new UpdateTournamentCommand(id, "Premier League", "Description");
-        Tournament existing = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament existing = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(existing));
         doThrow(new DuplicateTournamentNameException("Premier League"))

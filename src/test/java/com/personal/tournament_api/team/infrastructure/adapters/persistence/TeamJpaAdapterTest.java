@@ -39,7 +39,7 @@ class TeamJpaAdapterTest {
 
     @BeforeEach
     void setUp() {
-        team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+        team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
         teamEntity = new TeamEntity(
             1L,
             "Real Madrid",
@@ -97,7 +97,7 @@ class TeamJpaAdapterTest {
         @DisplayName("Should save team with updated statistics")
         void shouldSaveTeamWithUpdatedStatistics() {
             // Given
-            Team teamWithStats = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+            Team teamWithStats = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
             teamWithStats.registerVictory(3, 1);
 
             TeamEntity entityWithStats = new TeamEntity(
@@ -190,9 +190,9 @@ class TeamJpaAdapterTest {
             TeamEntity entity3 = new TeamEntity(3L, "Sevilla", "Jose Luis Mendilibar", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
             List<TeamEntity> entities = Arrays.asList(entity1, entity2, entity3);
 
-            Team team1 = new Team(1L, "Barcelona", "Xavi Hernandez", 1L);
-            Team team2 = new Team(2L, "Real Madrid", "Carlo Ancelotti", 1L);
-            Team team3 = new Team(3L, "Sevilla", "Jose Luis Mendilibar", 1L);
+            Team team1 = Team.reconstitute(1L, "Barcelona", "Xavi Hernandez", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(2L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team3 = Team.reconstitute(3L, "Sevilla", "Jose Luis Mendilibar", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
             List<Team> teams = Arrays.asList(team1, team2, team3);
 
             when(teamJpaRepository.findAllByOrderByNameAsc()).thenReturn(entities);

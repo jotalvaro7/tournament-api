@@ -63,7 +63,7 @@ class TeamMapperTest {
     @DisplayName("Should map Team domain model to TeamResponseDTO correctly")
     void shouldMapToResponse() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 10L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 10L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         // Simulate some match results to test all fields
         team.registerVictory(3, 1);
@@ -107,9 +107,9 @@ class TeamMapperTest {
     @DisplayName("Should map list of Teams to list of TeamResponseDTO correctly")
     void shouldMapListToResponseList() {
         // Given
-        Team team1 = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
-        Team team2 = new Team(2L, "Barcelona", "Xavi Hernandez", 1L);
-        Team team3 = new Team(3L, "Sevilla", "Jose Luis Mendilibar", 1L);
+        Team team1 = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+        Team team2 = Team.reconstitute(2L, "Barcelona", "Xavi Hernandez", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+        Team team3 = Team.reconstitute(3L, "Sevilla", "Jose Luis Mendilibar", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         List<Team> teams = Arrays.asList(team1, team2, team3);
 

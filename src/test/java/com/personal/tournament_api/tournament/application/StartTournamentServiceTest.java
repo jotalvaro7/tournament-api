@@ -36,8 +36,8 @@ class StartTournamentServiceTest {
     void shouldStartTournamentSuccessfully() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
-        Tournament started = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
+        Tournament started = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         started.startTournament();
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));
@@ -67,7 +67,7 @@ class StartTournamentServiceTest {
     void shouldThrowExceptionWhenNotInCreatedStatus() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         tournament.startTournament(); // already IN_PROGRESS
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));

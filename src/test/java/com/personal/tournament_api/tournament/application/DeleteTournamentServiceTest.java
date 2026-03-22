@@ -5,6 +5,7 @@ import com.personal.tournament_api.shared.domain.ports.DomainEventPublisher;
 import com.personal.tournament_api.tournament.domain.events.TournamentDeletedEvent;
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentCannotBeDeletedException;
 import com.personal.tournament_api.tournament.domain.exceptions.TournamentNotFoundException;
+import com.personal.tournament_api.tournament.domain.enums.StatusTournament;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class DeleteTournamentServiceTest {
     void shouldDeleteTournamentWhenStatusIsCreated() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));
 
@@ -58,7 +59,7 @@ class DeleteTournamentServiceTest {
     void shouldDeleteTournamentWhenStatusIsCompleted() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         tournament.startTournament();
         tournament.endTournament();
 
@@ -77,7 +78,7 @@ class DeleteTournamentServiceTest {
     void shouldPublishEventWithCorrectTournamentId() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));
         ArgumentCaptor<DomainEvent> captor = ArgumentCaptor.forClass(DomainEvent.class);
@@ -108,7 +109,7 @@ class DeleteTournamentServiceTest {
     void shouldThrowExceptionWhenTournamentIsInProgress() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         tournament.startTournament();
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));

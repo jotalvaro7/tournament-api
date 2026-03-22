@@ -1,5 +1,6 @@
 package com.personal.tournament_api.tournament.application;
 
+import com.personal.tournament_api.tournament.domain.enums.StatusTournament;
 import com.personal.tournament_api.tournament.domain.model.Tournament;
 import com.personal.tournament_api.tournament.domain.ports.TournamentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ class GetTournamentServiceTest {
     @DisplayName("Should get tournament by id successfully")
     void shouldGetTournamentByIdSuccessfully() {
         // Given
-        Tournament tournament = new Tournament(1L, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         when(tournamentRepository.findById(1L)).thenReturn(Optional.of(tournament));
 
         // When
@@ -62,8 +63,8 @@ class GetTournamentServiceTest {
     void shouldGetAllTournamentsSuccessfully() {
         // Given
         List<Tournament> tournaments = List.of(
-                new Tournament(1L, "La Liga", "Spanish Championship"),
-                new Tournament(2L, "Premier League", "English Championship")
+                Tournament.reconstitute(1L, "La Liga", "Spanish Championship", StatusTournament.CREATED),
+                Tournament.reconstitute(2L, "Premier League", "English Championship", StatusTournament.CREATED)
         );
         when(tournamentRepository.findAll()).thenReturn(tournaments);
 

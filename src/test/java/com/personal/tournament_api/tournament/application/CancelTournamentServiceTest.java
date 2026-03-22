@@ -36,8 +36,8 @@ class CancelTournamentServiceTest {
     void shouldCancelTournamentSuccessfully() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
-        Tournament cancelled = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
+        Tournament cancelled = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         cancelled.cancelTournament();
 
         when(tournamentRepository.findById(id)).thenReturn(Optional.of(tournament));
@@ -67,7 +67,7 @@ class CancelTournamentServiceTest {
     void shouldThrowExceptionWhenAlreadyCompleted() {
         // Given
         Long id = 1L;
-        Tournament tournament = new Tournament(id, "La Liga", "Spanish Championship");
+        Tournament tournament = Tournament.reconstitute(id, "La Liga", "Spanish Championship", StatusTournament.CREATED);
         tournament.startTournament();
         tournament.endTournament();
 

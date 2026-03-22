@@ -6,6 +6,8 @@ import com.personal.tournament_api.match.domain.model.*;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.FinishMatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchRequestDTO;
 import com.personal.tournament_api.match.infrastructure.adapters.web.dto.MatchResponseDTO;
+import com.personal.tournament_api.auth.infrastructure.security.JwtProvider;
+import com.personal.tournament_api.auth.infrastructure.security.UserDetailsServiceAdapter;
 import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchFilterBuilder;
 import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +15,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.personal.tournament_api.config.TestSecurityConfig;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MatchController.class)
+@Import(TestSecurityConfig.class)
 @DisplayName("MatchController Unit Tests")
 class MatchControllerTest {
 
@@ -62,6 +67,12 @@ class MatchControllerTest {
 
     @MockBean
     private MatchFilterBuilder matchFilterBuilder;
+
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private UserDetailsServiceAdapter userDetailsServiceAdapter;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -133,7 +144,7 @@ class MatchControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /tournaments/{tournamentId}/matches")
+@DisplayName("POST /tournaments/{tournamentId}/matches")
     class CreateMatchTests {
 
         @Test
@@ -468,7 +479,7 @@ class MatchControllerTest {
     }
 
     @Nested
-    @DisplayName("PUT /tournaments/{tournamentId}/matches/{matchId}")
+@DisplayName("PUT /tournaments/{tournamentId}/matches/{matchId}")
     class UpdateMatchTests {
 
         @Test
@@ -527,7 +538,7 @@ class MatchControllerTest {
     }
 
     @Nested
-    @DisplayName("PUT /tournaments/{tournamentId}/matches/{matchId}/result")
+@DisplayName("PUT /tournaments/{tournamentId}/matches/{matchId}/result")
     class SetResultTests {
 
         @Test
@@ -621,7 +632,7 @@ class MatchControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /tournaments/{tournamentId}/matches/{matchId}/postpone")
+@DisplayName("POST /tournaments/{tournamentId}/matches/{matchId}/postpone")
     class PostponeMatchTests {
 
         @Test
@@ -665,7 +676,7 @@ class MatchControllerTest {
     }
 
     @Nested
-    @DisplayName("DELETE /tournaments/{tournamentId}/matches/{matchId}")
+@DisplayName("DELETE /tournaments/{tournamentId}/matches/{matchId}")
     class DeleteMatchTests {
 
         @Test

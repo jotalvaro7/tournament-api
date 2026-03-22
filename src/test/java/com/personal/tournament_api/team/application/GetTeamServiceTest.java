@@ -32,7 +32,7 @@ class GetTeamServiceTest {
     @DisplayName("Should get team by id when exists")
     void shouldGetTeamByIdWhenExists() {
         // Given
-        Team team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
 
         // When
@@ -61,8 +61,8 @@ class GetTeamServiceTest {
     void shouldGetAllTeamsOrderedByNameAsc() {
         // Given
         List<Team> teams = List.of(
-                new Team(1L, "Barcelona", "Xavi Hernandez", 1L),
-                new Team(2L, "Real Madrid", "Carlo Ancelotti", 1L)
+                Team.reconstitute(1L, "Barcelona", "Xavi Hernandez", 1L, 0, 0, 0, 0, 0, 0, 0, 0),
+                Team.reconstitute(2L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0)
         );
         when(teamRepository.findAllByTournamentIdOrderByNameAsc(1L)).thenReturn(teams);
 

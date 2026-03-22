@@ -38,7 +38,7 @@ class CreateTournamentServiceTest {
     void shouldCreateTournamentSuccessfully() {
         // Given
         CreateTournamentCommand command = new CreateTournamentCommand("La Liga", "Spanish Football Championship");
-        Tournament saved = new Tournament(1L, "La Liga", "Spanish Football Championship");
+        Tournament saved = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
         doNothing().when(tournamentDomainService).validateUniqueName(anyString(), any());
         when(tournamentRepository.save(any())).thenReturn(saved);
@@ -76,7 +76,7 @@ class CreateTournamentServiceTest {
     void shouldSaveTournamentWithNullId() {
         // Given
         CreateTournamentCommand command = new CreateTournamentCommand("Serie A", "Italian Championship");
-        Tournament saved = new Tournament(1L, "Serie A", "Italian Championship");
+        Tournament saved = Tournament.reconstitute(1L, "Serie A", "Italian Championship", StatusTournament.CREATED);
 
         doNothing().when(tournamentDomainService).validateUniqueName(anyString(), any());
         when(tournamentRepository.save(any())).thenReturn(saved);

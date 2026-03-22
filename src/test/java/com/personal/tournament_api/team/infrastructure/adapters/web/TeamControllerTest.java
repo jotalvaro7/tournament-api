@@ -1,6 +1,8 @@
 package com.personal.tournament_api.team.infrastructure.adapters.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.personal.tournament_api.auth.infrastructure.security.JwtProvider;
+import com.personal.tournament_api.auth.infrastructure.security.UserDetailsServiceAdapter;
 import com.personal.tournament_api.match.application.usecases.GetMatchUseCase;
 import com.personal.tournament_api.match.infrastructure.adapters.web.mapper.MatchMapper;
 import com.personal.tournament_api.team.application.usecases.CreateTeamUseCase;
@@ -18,8 +20,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.personal.tournament_api.config.TestSecurityConfig;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -42,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TeamController.class)
+@Import(TestSecurityConfig.class)
 @DisplayName("TeamController Unit Tests")
 class TeamControllerTest {
 
@@ -71,6 +76,12 @@ class TeamControllerTest {
     @MockBean
     private TeamMapper teamMapper;
 
+    @MockBean
+    private JwtProvider jwtProvider;
+
+    @MockBean
+    private UserDetailsServiceAdapter userDetailsServiceAdapter;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -82,7 +93,7 @@ class TeamControllerTest {
 
     @BeforeEach
     void setUp() {
-        team = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        team = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         teamRequestDTO = new TeamRequestDTO("Real Madrid", "Carlo Ancelotti");
 
@@ -106,7 +117,7 @@ class TeamControllerTest {
     }
 
     @Nested
-    @DisplayName("POST /tournaments/{tournamentId}/teams")
+@DisplayName("POST /tournaments/{tournamentId}/teams")
     class CreateTeamTests {
 
         @Test
@@ -254,9 +265,9 @@ class TeamControllerTest {
         @Test
         @DisplayName("Should get all teams ordered by name ascending")
         void shouldGetAllTeamsOrderedByNameAsc() throws Exception {
-            Team team1 = new Team(1L, "Barcelona", "Xavi Hernandez", 1L);
-            Team team2 = new Team(2L, "Real Madrid", "Carlo Ancelotti", 1L);
-            Team team3 = new Team(3L, "Sevilla", "Jose Luis Mendilibar", 1L);
+            Team team1 = Team.reconstitute(1L, "Barcelona", "Xavi Hernandez", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team2 = Team.reconstitute(2L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
+            Team team3 = Team.reconstitute(3L, "Sevilla", "Jose Luis Mendilibar", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
             List<Team> teams = Arrays.asList(team1, team2, team3);
 
             TeamResponseDTO response1 = new TeamResponseDTO(1L, "Barcelona", "Xavi Hernandez", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -296,14 +307,14 @@ class TeamControllerTest {
     }
 
     @Nested
-    @DisplayName("PUT /tournaments/{tournamentId}/teams/{teamId}")
+@DisplayName("PUT /tournaments/{tournamentId}/teams/{teamId}")
     class UpdateTeamTests {
 
         @Test
         @DisplayName("Should update team successfully with valid data")
         void shouldUpdateTeamSuccessfully() throws Exception {
             TeamRequestDTO updateRequest = new TeamRequestDTO("Real Madrid CF", "Carlo Ancelotti Updated");
-            Team updatedTeam = new Team(1L, "Real Madrid CF", "Carlo Ancelotti Updated", 1L);
+            Team updatedTeam = Team.reconstitute(1L, "Real Madrid CF", "Carlo Ancelotti Updated", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
             TeamResponseDTO updatedResponse = new TeamResponseDTO(
                 1L, "Real Madrid CF", "Carlo Ancelotti Updated", 1L, 0, 0, 0, 0, 0, 0, 0, 0
             );
@@ -369,7 +380,7 @@ class TeamControllerTest {
     }
 
     @Nested
-    @DisplayName("DELETE /tournaments/{tournamentId}/teams/{teamId}")
+@DisplayName("DELETE /tournaments/{tournamentId}/teams/{teamId}")
     class DeleteTeamTests {
 
         @Test

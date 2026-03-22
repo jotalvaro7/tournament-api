@@ -19,7 +19,7 @@ class TournamentTest {
         @DisplayName("Should create tournament with valid data")
         void shouldCreateTournamentWithValidData() {
             // When
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // Then
             assertNotNull(tournament);
@@ -33,7 +33,7 @@ class TournamentTest {
         @DisplayName("Should create tournament with CREATED status by default")
         void shouldCreateTournamentWithCreatedStatusByDefault() {
             // When
-            Tournament tournament = new Tournament(1L, "Premier League", "English Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "Premier League", "English Football Championship", StatusTournament.CREATED);
 
             // Then
             assertEquals(StatusTournament.CREATED, tournament.getStatus());
@@ -44,7 +44,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when name is null")
         void shouldThrowExceptionWhenNameIsNull() {
             assertThrows(InvalidTournamentNameException.class, () -> {
-                new Tournament(1L, null, "Valid description");
+                Tournament.create(null, "Valid description");
             });
         }
 
@@ -52,7 +52,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when name is empty")
         void shouldThrowExceptionWhenNameIsEmpty() {
             assertThrows(InvalidTournamentNameException.class, () -> {
-                new Tournament(1L, "", "Valid description");
+                Tournament.create("", "Valid description");
             });
         }
 
@@ -60,7 +60,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when description is null")
         void shouldThrowExceptionWhenDescriptionIsNull() {
             assertThrows(InvalidTournamentDescriptionException.class, () -> {
-                new Tournament(1L, "Valid Name", null);
+                Tournament.create("Valid Name", null);
             });
         }
 
@@ -68,7 +68,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when description is empty")
         void shouldThrowExceptionWhenDescriptionIsEmpty() {
             assertThrows(InvalidTournamentDescriptionException.class, () -> {
-                new Tournament(1L, "Valid Name", "");
+                Tournament.create("Valid Name", "");
             });
         }
 
@@ -76,7 +76,7 @@ class TournamentTest {
         @DisplayName("Should create tournament with default constructor")
         void shouldCreateTournamentWithDefaultConstructor() {
             // When
-            Tournament tournament = new Tournament();
+            Tournament tournament = Tournament.create("Default Name", "Default Description");
 
             // Then
             assertNotNull(tournament);
@@ -92,7 +92,7 @@ class TournamentTest {
         @DisplayName("Should update name and description with valid data")
         void shouldUpdateDetailsWithValidData() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             tournament.updateDetails("La Liga Santander", "Spanish Top Division Football");
@@ -106,7 +106,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when updating with invalid name")
         void shouldThrowExceptionWhenUpdatingWithInvalidName() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertThrows(InvalidTournamentNameException.class, () -> {
@@ -118,7 +118,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when updating with invalid description")
         void shouldThrowExceptionWhenUpdatingWithInvalidDescription() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertThrows(InvalidTournamentDescriptionException.class, () -> {
@@ -130,7 +130,7 @@ class TournamentTest {
         @DisplayName("Should maintain status after update")
         void shouldMaintainStatusAfterUpdate() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When
@@ -151,7 +151,7 @@ class TournamentTest {
         @DisplayName("Should start tournament when status is CREATED")
         void shouldStartTournamentWhenStatusIsCreated() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             tournament.startTournament();
@@ -165,7 +165,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when starting tournament not in CREATED status")
         void shouldThrowExceptionWhenStartingTournamentNotInCreatedStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When & Then
@@ -178,7 +178,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when starting completed tournament")
         void shouldThrowExceptionWhenStartingCompletedTournament() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
             tournament.endTournament();
 
@@ -197,7 +197,7 @@ class TournamentTest {
         @DisplayName("Should end tournament when status is IN_PROGRESS")
         void shouldEndTournamentWhenStatusIsInProgress() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When
@@ -212,7 +212,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when ending tournament not in IN_PROGRESS status")
         void shouldThrowExceptionWhenEndingTournamentNotInProgress() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertThrows(InvalidTournamentStateException.class, () -> {
@@ -224,7 +224,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when ending already completed tournament")
         void shouldThrowExceptionWhenEndingAlreadyCompletedTournament() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
             tournament.endTournament();
 
@@ -243,7 +243,7 @@ class TournamentTest {
         @DisplayName("Should cancel tournament when status is CREATED")
         void shouldCancelTournamentWhenStatusIsCreated() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             tournament.cancelTournament();
@@ -257,7 +257,7 @@ class TournamentTest {
         @DisplayName("Should cancel tournament when status is IN_PROGRESS")
         void shouldCancelTournamentWhenStatusIsInProgress() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When
@@ -272,7 +272,7 @@ class TournamentTest {
         @DisplayName("Should throw exception when cancelling completed tournament")
         void shouldThrowExceptionWhenCancellingCompletedTournament() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
             tournament.endTournament();
 
@@ -291,7 +291,7 @@ class TournamentTest {
         @DisplayName("Should allow deletion when tournament is CREATED")
         void shouldAllowDeletionWhenTournamentIsCreated() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertTrue(tournament.canBeDeleted());
@@ -302,7 +302,7 @@ class TournamentTest {
         @DisplayName("Should allow deletion when tournament is COMPLETED")
         void shouldAllowDeletionWhenTournamentIsCompleted() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
             tournament.endTournament();
 
@@ -315,7 +315,7 @@ class TournamentTest {
         @DisplayName("Should allow deletion when tournament is CANCELLED")
         void shouldAllowDeletionWhenTournamentIsCancelled() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.cancelTournament();
 
             // When & Then
@@ -327,7 +327,7 @@ class TournamentTest {
         @DisplayName("Should not allow deletion when tournament is IN_PROGRESS")
         void shouldNotAllowDeletionWhenTournamentIsInProgress() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When & Then
@@ -346,7 +346,7 @@ class TournamentTest {
         @DisplayName("Should correctly identify CREATED status")
         void shouldCorrectlyIdentifyCreatedStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertTrue(tournament.isCreated());
@@ -359,7 +359,7 @@ class TournamentTest {
         @DisplayName("Should correctly identify IN_PROGRESS status")
         void shouldCorrectlyIdentifyInProgressStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When & Then
@@ -373,7 +373,7 @@ class TournamentTest {
         @DisplayName("Should correctly identify COMPLETED status")
         void shouldCorrectlyIdentifyCompletedStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
             tournament.endTournament();
 
@@ -388,7 +388,7 @@ class TournamentTest {
         @DisplayName("Should correctly identify CANCELLED status")
         void shouldCorrectlyIdentifyCancelledStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.cancelTournament();
 
             // When & Then
@@ -407,7 +407,7 @@ class TournamentTest {
         @DisplayName("Should transition from CREATED to IN_PROGRESS to COMPLETED")
         void shouldTransitionFromCreatedToInProgressToCompleted() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertTrue(tournament.isCreated());
@@ -423,7 +423,7 @@ class TournamentTest {
         @DisplayName("Should transition from CREATED to CANCELLED")
         void shouldTransitionFromCreatedToCancelled() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             tournament.cancelTournament();
@@ -436,7 +436,7 @@ class TournamentTest {
         @DisplayName("Should transition from IN_PROGRESS to CANCELLED")
         void shouldTransitionFromInProgressToCancelled() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When
@@ -455,8 +455,8 @@ class TournamentTest {
         @DisplayName("Should be equal when all fields are equal")
         void shouldBeEqualWhenAllFieldsAreEqual() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertEquals(tournament1, tournament2);
@@ -467,8 +467,8 @@ class TournamentTest {
         @DisplayName("Should not be equal when ids are different")
         void shouldNotBeEqualWhenIdsAreDifferent() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(2L, "La Liga", "Spanish Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(2L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertNotEquals(tournament1, tournament2);
@@ -478,8 +478,8 @@ class TournamentTest {
         @DisplayName("Should not be equal when names are different")
         void shouldNotBeEqualWhenNamesAreDifferent() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(1L, "Premier League", "Spanish Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(1L, "Premier League", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertNotEquals(tournament1, tournament2);
@@ -489,8 +489,8 @@ class TournamentTest {
         @DisplayName("Should not be equal when descriptions are different")
         void shouldNotBeEqualWhenDescriptionsAreDifferent() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(1L, "La Liga", "Different Description");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(1L, "La Liga", "Different Description", StatusTournament.CREATED);
 
             // When & Then
             assertNotEquals(tournament1, tournament2);
@@ -500,8 +500,8 @@ class TournamentTest {
         @DisplayName("Should not be equal when statuses are different")
         void shouldNotBeEqualWhenStatusesAreDifferent() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament2.startTournament();
 
             // When & Then
@@ -512,7 +512,7 @@ class TournamentTest {
         @DisplayName("Should not be equal when comparing with null")
         void shouldNotBeEqualWhenComparingWithNull() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertNotEquals(null, tournament);
@@ -522,7 +522,7 @@ class TournamentTest {
         @DisplayName("Should be equal to itself (reflexivity)")
         void shouldBeEqualToItself() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertEquals(tournament, tournament);
@@ -532,7 +532,7 @@ class TournamentTest {
         @DisplayName("Should not be equal when comparing with different class")
         void shouldNotBeEqualWhenComparingWithDifferentClass() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             Object other = new Object();
 
             // When & Then
@@ -543,7 +543,7 @@ class TournamentTest {
         @DisplayName("Should return consistent hashCode on multiple calls")
         void shouldReturnConsistentHashCode() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             int hashCode1 = tournament.hashCode();
@@ -557,8 +557,8 @@ class TournamentTest {
         @DisplayName("Should have different hashCode when tournaments are not equal")
         void shouldHaveDifferentHashCodeWhenTournamentsAreNotEqual() {
             // Given
-            Tournament tournament1 = new Tournament(1L, "La Liga", "Spanish Football Championship");
-            Tournament tournament2 = new Tournament(2L, "Premier League", "English Football Championship");
+            Tournament tournament1 = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
+            Tournament tournament2 = Tournament.reconstitute(2L, "Premier League", "English Football Championship", StatusTournament.CREATED);
 
             // When & Then
             assertNotEquals(tournament1.hashCode(), tournament2.hashCode());
@@ -573,7 +573,7 @@ class TournamentTest {
         @DisplayName("Should return string representation with all fields")
         void shouldReturnStringWithAllFields() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             String result = tournament.toString();
@@ -590,7 +590,7 @@ class TournamentTest {
         @DisplayName("Should return string representation with updated status")
         void shouldReturnStringWithUpdatedStatus() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
             tournament.startTournament();
 
             // When
@@ -605,7 +605,7 @@ class TournamentTest {
         @DisplayName("Should return string starting with class name")
         void shouldReturnStringStartingWithClassName() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             String result = tournament.toString();
@@ -619,7 +619,7 @@ class TournamentTest {
         @DisplayName("Should return consistent string on multiple calls")
         void shouldReturnConsistentStringOnMultipleCalls() {
             // Given
-            Tournament tournament = new Tournament(1L, "La Liga", "Spanish Football Championship");
+            Tournament tournament = Tournament.reconstitute(1L, "La Liga", "Spanish Football Championship", StatusTournament.CREATED);
 
             // When
             String result1 = tournament.toString();

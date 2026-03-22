@@ -36,7 +36,7 @@ class CreateTeamServiceTest {
     void shouldCreateTeamSuccessfully() {
         // Given
         CreateTeamCommand command = new CreateTeamCommand("Real Madrid", "Carlo Ancelotti", 1L);
-        Team saved = new Team(1L, "Real Madrid", "Carlo Ancelotti", 1L);
+        Team saved = Team.reconstitute(1L, "Real Madrid", "Carlo Ancelotti", 1L, 0, 0, 0, 0, 0, 0, 0, 0);
 
         doNothing().when(teamDomainService).validateUniqueTeamName(eq("Real Madrid"), eq(teamRepository));
         when(teamRepository.save(any())).thenReturn(saved);
