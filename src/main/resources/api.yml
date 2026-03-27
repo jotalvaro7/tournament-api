@@ -335,6 +335,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /{tournamentId}/teams/standings:
+    get:
+      tags:
+        - Teams
+      summary: Get standings table for a tournament
+      description: Retrieve all teams in a tournament sorted by points (descending) and then by goal difference (descending)
+      operationId: getStandings
+      parameters:
+        - $ref: '#/components/parameters/TournamentId'
+      responses:
+        '200':
+          description: Standings table retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamResponse'
+        '404':
+          description: Tournament not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /{tournamentId}/teams/{teamId}:
     get:
       tags:

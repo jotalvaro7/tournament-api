@@ -15,6 +15,8 @@ public interface TeamJpaRepository extends JpaRepository<TeamEntity, Long> {
 
     List<TeamEntity> findAllByTournamentIdOrderByNameAsc(Long tournamentId);
 
+    List<TeamEntity> findAllByTournamentIdOrderByPointsDescGoalDifferenceDesc(Long tournamentId);
+
     void deleteByTournamentId(Long tournamentId);
 
 }

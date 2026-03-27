@@ -44,6 +44,12 @@ public class TeamJpaAdapter implements TeamRepository {
     }
 
     @Override
+    public List<Team> findStandingsByTournamentId(Long tournamentId) {
+        List<TeamEntity> entities = teamJpaRepository.findAllByTournamentIdOrderByPointsDescGoalDifferenceDesc(tournamentId);
+        return mapper.toDomainList(entities);
+    }
+
+    @Override
     public void deleteById(Long id) {
         teamJpaRepository.deleteById(id);
     }

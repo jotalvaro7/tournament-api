@@ -30,4 +30,10 @@ public class GetTeamService implements GetTeamUseCase {
         log.info("Fetching all teams for tournament with id: {}", tournamentId);
         return teamRepository.findAllByTournamentIdOrderByNameAsc(tournamentId);
     }
+
+    @Override
+    public List<Team> getStandingsByTournamentId(Long tournamentId) {
+        log.info("Fetching standings for tournament with id: {}", tournamentId);
+        return teamRepository.findStandingsByTournamentId(tournamentId);
+    }
 }
