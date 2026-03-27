@@ -54,6 +54,12 @@ public class TeamController {
         return ResponseEntity.ok(teamMapper.toResponseList(teams));
     }
 
+    @GetMapping("/standings")
+    public ResponseEntity<List<TeamResponseDTO>> getStandings(@PathVariable Long tournamentId) {
+        List<Team> teams = getTeamUseCase.getStandingsByTournamentId(tournamentId);
+        return ResponseEntity.ok(teamMapper.toResponseList(teams));
+    }
+
     @GetMapping("/{teamId}/matches")
     public ResponseEntity<List<MatchResponseDTO>> getMatchesByTeamId(@PathVariable Long tournamentId,
                                                                       @PathVariable Long teamId) {

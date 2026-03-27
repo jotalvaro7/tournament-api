@@ -15,6 +15,8 @@ public interface TeamRepository {
 
     List<Team> findAllByTournamentIdOrderByNameAsc(Long tournamentId);
 
+    List<Team> findStandingsByTournamentId(Long tournamentId);
+
     void deleteById(Long id);
 
     void deleteByTournamentId(Long tournamentId);

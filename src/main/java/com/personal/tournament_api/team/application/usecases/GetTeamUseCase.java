@@ -10,4 +10,6 @@ public interface GetTeamUseCase {
     Optional<Team> getById(Long teamId);
 
     List<Team> getAllByTournamentIdOrderByNameAsc(Long tournamentId);
+
+    List<Team> getStandingsByTournamentId(Long tournamentId);
 }
