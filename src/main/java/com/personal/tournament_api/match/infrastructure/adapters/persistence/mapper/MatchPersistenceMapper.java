@@ -26,6 +26,7 @@ public interface MatchPersistenceMapper {
         entity.setMatchDate(match.getMatchDate());
         entity.setField(match.getField());
         entity.setStatus(match.getStatus());
+        entity.setMatchday(match.getMatchday());
 
         return entity;
     }
@@ -44,7 +45,8 @@ public interface MatchPersistenceMapper {
                 entity.getAwayTeamScore(),
                 entity.getMatchDate(),
                 entity.getField(),
-                entity.getStatus()
+                entity.getStatus(),
+                entity.getMatchday()
         );
     }
 

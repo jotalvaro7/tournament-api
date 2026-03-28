@@ -47,7 +47,7 @@ class FinishMatchServiceTest {
     @DisplayName("Should finish match with new result successfully")
     void shouldFinishMatchWithNewResultSuccessfully() {
         // Given
-        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
         MatchResultOutcome outcome = MatchResultOutcome.newResult();
 
@@ -70,7 +70,7 @@ class FinishMatchServiceTest {
     void shouldFinishMatchWithCorrectionSuccessfully() {
         // Given
         Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
-                2, 2, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
+                2, 2, VALID_DATE, "Stadium A", MatchStatus.FINISHED, null);
         FinishMatchCommand command = new FinishMatchCommand(MATCH_ID, 3, 1);
         MatchResultOutcome outcome = MatchResultOutcome.correction(2, 2);
 

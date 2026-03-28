@@ -17,10 +17,11 @@ public class Match {
     private LocalDateTime matchDate;
     private MatchField field;
     private MatchStatus status;
+    private Integer matchday;
 
     private Match(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
                   Integer homeTeamScore, Integer awayTeamScore,
-                  LocalDateTime matchDate, MatchField field, MatchStatus status) {
+                  LocalDateTime matchDate, MatchField field, MatchStatus status, Integer matchday) {
         this.id = id;
         this.tournamentId = tournamentId;
         this.homeTeamId = homeTeamId;
@@ -30,23 +31,25 @@ public class Match {
         this.matchDate = matchDate;
         this.field = field;
         this.status = status;
+        this.matchday = matchday;
     }
 
     // --- Factory Methods ---
 
     public static Match create(Long tournamentId, Long homeTeamId, Long awayTeamId,
-                               LocalDateTime matchDate, String field) {
+                               LocalDateTime matchDate, String field, Integer matchday) {
         validateIdentifiers(tournamentId, homeTeamId, awayTeamId);
         validateMatchDate(matchDate);
+        validateMatchday(matchday);
         return new Match(null, tournamentId, homeTeamId, awayTeamId,
-                null, null, matchDate, new MatchField(field), MatchStatus.SCHEDULED);
+                null, null, matchDate, new MatchField(field), MatchStatus.SCHEDULED, matchday);
     }
 
     public static Match reconstitute(Long id, Long tournamentId, Long homeTeamId, Long awayTeamId,
                                      Integer homeTeamScore, Integer awayTeamScore,
-                                     LocalDateTime matchDate, String field, MatchStatus status) {
+                                     LocalDateTime matchDate, String field, MatchStatus status, Integer matchday) {
         return new Match(id, tournamentId, homeTeamId, awayTeamId,
-                homeTeamScore, awayTeamScore, matchDate, new MatchField(field), status);
+                homeTeamScore, awayTeamScore, matchDate, new MatchField(field), status, matchday);
     }
 
     // --- Domain Behavior ---
@@ -77,13 +80,15 @@ public class Match {
                 : MatchResultOutcome.newResult();
     }
 
-    public void updateMatchDetails(LocalDateTime matchDate, String field) {
+    public void updateMatchDetails(LocalDateTime matchDate, String field, Integer matchday) {
         if (status == MatchStatus.FINISHED) {
             throw new InvalidMatchStatusTransitionException("Cannot update details of a finished match");
         }
         validateMatchDate(matchDate);
+        validateMatchday(matchday);
         this.matchDate = matchDate;
         this.field = new MatchField(field);
+        this.matchday = matchday;
     }
 
     public boolean hasResult() {
@@ -103,6 +108,12 @@ public class Match {
         if (matchDate == null) throw new InvalidMatchDateException();
     }
 
+    private static void validateMatchday(Integer matchday) {
+        if (matchday != null && matchday <= 0) {
+            throw new InvalidMatchDataException("Matchday must be a positive number");
+        }
+    }
+
     private void validateScore(int homeScore, int awayScore) {
         if (homeScore < 0 || awayScore < 0) throw new InvalidMatchScoreException();
     }
@@ -118,6 +129,7 @@ public class Match {
     public LocalDateTime getMatchDate() { return matchDate; }
     public String getField() { return field.value(); }
     public MatchStatus getStatus() { return status; }
+    public Integer getMatchday() { return matchday; }
 
     @Override
     public boolean equals(Object o) {
@@ -131,13 +143,14 @@ public class Match {
                Objects.equals(awayTeamScore, match.awayTeamScore) &&
                Objects.equals(matchDate, match.matchDate) &&
                Objects.equals(getField(), match.getField()) &&
-               status == match.status;
+               status == match.status &&
+               Objects.equals(matchday, match.matchday);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, tournamentId, homeTeamId, awayTeamId,
-                homeTeamScore, awayTeamScore, matchDate, getField(), status);
+                homeTeamScore, awayTeamScore, matchDate, getField(), status, matchday);
     }
 
     @Override
@@ -145,6 +158,7 @@ public class Match {
         return "Match{id=" + id + ", tournamentId=" + tournamentId +
                ", homeTeamId=" + homeTeamId + ", awayTeamId=" + awayTeamId +
                ", homeTeamScore=" + homeTeamScore + ", awayTeamScore=" + awayTeamScore +
-               ", matchDate=" + matchDate + ", field='" + getField() + "', status=" + status + '}';
+               ", matchDate=" + matchDate + ", field='" + getField() + "', status=" + status +
+               ", matchday=" + matchday + '}';
     }
 }

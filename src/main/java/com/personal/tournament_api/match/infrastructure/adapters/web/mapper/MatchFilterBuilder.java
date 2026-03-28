@@ -24,17 +24,18 @@ public class MatchFilterBuilder {
      * @return MatchSearchCriteria domain object
      * @throws IllegalArgumentException if specificDate is used together with dateFrom/dateTo
      */
-    public MatchSearchCriteria buildSearchCriteria(LocalDate specificDate, LocalDate dateFrom, LocalDate dateTo, MatchStatus status) {
+    public MatchSearchCriteria buildSearchCriteria(LocalDate specificDate, LocalDate dateFrom, LocalDate dateTo,
+                                                    MatchStatus status, Integer matchday) {
         if (specificDate != null && (dateFrom != null || dateTo != null)) {
             throw new IllegalArgumentException("Cannot use 'specificDate' together with 'dateFrom' or 'dateTo'");
         }
 
         if (specificDate != null) {
-            return MatchSearchCriteria.withSpecificDate(specificDate, status);
+            return MatchSearchCriteria.withSpecificDate(specificDate, status, matchday);
         } else if (dateFrom != null && dateTo != null) {
-            return MatchSearchCriteria.withDateRange(dateFrom, dateTo, status);
-        } else if (status != null) {
-            return MatchSearchCriteria.withStatus(status);
+            return MatchSearchCriteria.withDateRange(dateFrom, dateTo, status, matchday);
+        } else if (status != null || matchday != null) {
+            return MatchSearchCriteria.withStatus(status, matchday);
         } else {
             return MatchSearchCriteria.empty();
         }
@@ -49,10 +50,10 @@ public class MatchFilterBuilder {
      * @param direction sort direction (ASC or DESC)
      * @return PageRequest domain object
      */
-    public PageRequest buildPageRequest(int page, int size, String sortBy, String direction) {
+    public PageRequest buildPageRequest(int page, int size, String sortBy, String direction, String secondarySortBy) {
         PageRequest.SortDirection sortDirection = "DESC".equalsIgnoreCase(direction)
                 ? PageRequest.SortDirection.DESC
                 : PageRequest.SortDirection.ASC;
-        return PageRequest.of(page, size, sortBy, sortDirection);
+        return PageRequest.of(page, size, sortBy, sortDirection, secondarySortBy);
     }
 }

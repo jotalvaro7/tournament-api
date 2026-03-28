@@ -647,7 +647,7 @@ paths:
       tags:
         - Matches
       summary: Get matches in a tournament with filters and pagination
-      description: Retrieve a paginated list of matches in a specific tournament with optional filters by date and status
+      description: Retrieve a paginated list of matches in a specific tournament with optional filters by date, status and matchday
       operationId: getAllMatches
       parameters:
         - $ref: '#/components/parameters/TournamentId'
@@ -681,6 +681,14 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/MatchStatus'
+        - name: matchday
+          in: query
+          description: Filter matches by matchday number (e.g., 1 for Fecha 1, 2 for Fecha 2)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
         - name: page
           in: query
           description: Page number (zero-based)
@@ -702,12 +710,12 @@ paths:
             example: 15
         - name: sortBy
           in: query
-          description: Field to sort by
+          description: Field to sort by (e.g., matchDate, matchday)
           required: false
           schema:
             type: string
             default: matchDate
-            example: matchDate
+            example: matchday
         - name: direction
           in: query
           description: Sort direction
@@ -717,6 +725,13 @@ paths:
             enum: [ASC, DESC]
             default: ASC
             example: ASC
+        - name: secondarySortBy
+          in: query
+          description: Secondary field to sort by within the primary sort (always ASC). Use with sortBy=matchday to also order matches by time within each matchday (e.g., secondarySortBy=matchDate)
+          required: false
+          schema:
+            type: string
+            example: matchDate
       responses:
         '200':
           description: Paginated list of matches retrieved successfully
@@ -1255,6 +1270,12 @@ components:
           maxLength: 100
           description: Name of the field where the match is played
           example: Estadio Santiago Bernabeu
+        matchday:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: Matchday number this match belongs to (e.g., 1 for Fecha 1, 2 for Fecha 2)
+          example: 1
 
     FinishMatchRequest:
       type: object
@@ -1317,6 +1338,11 @@ components:
           example: Estadio Santiago Bernabeu
         status:
           $ref: '#/components/schemas/MatchStatus'
+        matchday:
+          type: integer
+          nullable: true
+          description: Matchday number this match belongs to (null if not assigned)
+          example: 1
 
     MatchStatus:
       type: string

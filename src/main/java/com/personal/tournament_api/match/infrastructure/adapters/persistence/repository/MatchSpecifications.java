@@ -40,6 +40,10 @@ public class MatchSpecifications {
         return (root, query, cb) -> cb.equal(root.get("status"), status);
     }
 
+    public static Specification<MatchEntity> withMatchday(Integer matchday) {
+        return (root, query, cb) -> cb.equal(root.get("matchday"), matchday);
+    }
+
     public static Specification<MatchEntity> fromCriteria(Long tournamentId, MatchSearchCriteria criteria) {
         Specification<MatchEntity> spec = withTournamentId(tournamentId);
 
@@ -53,6 +57,10 @@ public class MatchSpecifications {
 
         if (criteria.hasStatus()) {
             spec = spec.and(withStatus(criteria.getStatus()));
+        }
+
+        if (criteria.hasMatchday()) {
+            spec = spec.and(withMatchday(criteria.getMatchday()));
         }
 
         return spec;

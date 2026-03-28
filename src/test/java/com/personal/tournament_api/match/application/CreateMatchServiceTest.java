@@ -39,8 +39,8 @@ class CreateMatchServiceTest {
     @DisplayName("Should create match successfully with SCHEDULED status")
     void shouldCreateMatchSuccessfully() {
         // Given
-        CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A", null);
+        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
         when(matchRepository.save(any())).thenReturn(expected);
 
@@ -58,8 +58,8 @@ class CreateMatchServiceTest {
     @DisplayName("Should save match with correct data")
     void shouldSaveMatchWithCorrectData() {
         // Given
-        CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A");
-        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        CreateMatchCommand command = new CreateMatchCommand(TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, VALID_DATE, "Stadium A", null);
+        Match expected = Match.reconstitute(1L, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
         when(matchRepository.save(any())).thenReturn(expected);
 

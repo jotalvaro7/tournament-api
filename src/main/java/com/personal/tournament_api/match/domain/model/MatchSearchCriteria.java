@@ -11,31 +11,31 @@ public class MatchSearchCriteria {
     private final LocalDate dateFrom;
     private final LocalDate dateTo;
     private final MatchStatus status;
+    private final Integer matchday;
 
-    private MatchSearchCriteria(LocalDate specificDate, LocalDate dateFrom, LocalDate dateTo, MatchStatus status) {
+    private MatchSearchCriteria(LocalDate specificDate, LocalDate dateFrom, LocalDate dateTo, MatchStatus status, Integer matchday) {
         this.specificDate = specificDate;
         this.dateFrom = dateFrom;
         this.dateTo = dateTo;
         this.status = status;
+        this.matchday = matchday;
         validate();
     }
 
-
-    public static MatchSearchCriteria withSpecificDate(LocalDate date, MatchStatus status) {
-        return new MatchSearchCriteria(date, null, null, status);
+    public static MatchSearchCriteria withSpecificDate(LocalDate date, MatchStatus status, Integer matchday) {
+        return new MatchSearchCriteria(date, null, null, status, matchday);
     }
 
-    public static MatchSearchCriteria withDateRange(LocalDate from, LocalDate to, MatchStatus status) {
-        return new MatchSearchCriteria(null, from, to, status);
+    public static MatchSearchCriteria withDateRange(LocalDate from, LocalDate to, MatchStatus status, Integer matchday) {
+        return new MatchSearchCriteria(null, from, to, status, matchday);
     }
 
-
-    public static MatchSearchCriteria withStatus(MatchStatus status) {
-        return new MatchSearchCriteria(null, null, null, status);
+    public static MatchSearchCriteria withStatus(MatchStatus status, Integer matchday) {
+        return new MatchSearchCriteria(null, null, null, status, matchday);
     }
 
     public static MatchSearchCriteria empty() {
-        return new MatchSearchCriteria(null, null, null, null);
+        return new MatchSearchCriteria(null, null, null, null, null);
     }
 
     private void validate() {
@@ -65,8 +65,12 @@ public class MatchSearchCriteria {
         return status != null;
     }
 
+    public boolean hasMatchday() {
+        return matchday != null;
+    }
+
     public boolean isEmpty() {
-        return specificDate == null && dateFrom == null && dateTo == null && status == null;
+        return specificDate == null && dateFrom == null && dateTo == null && status == null && matchday == null;
     }
 
     // Getters
@@ -86,6 +90,10 @@ public class MatchSearchCriteria {
         return status;
     }
 
+    public Integer getMatchday() {
+        return matchday;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -94,12 +102,13 @@ public class MatchSearchCriteria {
         return Objects.equals(specificDate, that.specificDate) &&
                Objects.equals(dateFrom, that.dateFrom) &&
                Objects.equals(dateTo, that.dateTo) &&
-               status == that.status;
+               status == that.status &&
+               Objects.equals(matchday, that.matchday);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(specificDate, dateFrom, dateTo, status);
+        return Objects.hash(specificDate, dateFrom, dateTo, status, matchday);
     }
 
     @Override
@@ -109,6 +118,7 @@ public class MatchSearchCriteria {
                 ", dateFrom=" + dateFrom +
                 ", dateTo=" + dateTo +
                 ", status=" + status +
+                ", matchday=" + matchday +
                 '}';
     }
 }
