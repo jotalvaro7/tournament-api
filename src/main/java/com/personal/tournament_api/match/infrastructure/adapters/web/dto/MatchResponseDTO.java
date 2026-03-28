@@ -13,5 +13,6 @@ public record MatchResponseDTO(
         Integer awayTeamScore,
         LocalDateTime matchDate,
         String field,
-        MatchStatus status
+        MatchStatus status,
+        Integer matchday
 ) {}

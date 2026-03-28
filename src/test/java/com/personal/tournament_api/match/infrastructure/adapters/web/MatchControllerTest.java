@@ -89,9 +89,9 @@ class MatchControllerTest {
 
     @BeforeEach
     void setUp() {
-        match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
-        matchRequestDTO = new MatchRequestDTO(1L, 2L, TEST_DATE, "Stadium A");
+        matchRequestDTO = new MatchRequestDTO(1L, 2L, TEST_DATE, "Stadium A", null);
 
         matchResponseDTO = new MatchResponseDTO(
             1L,
@@ -102,44 +102,47 @@ class MatchControllerTest {
             null,
             TEST_DATE,
             "Stadium A",
-            MatchStatus.SCHEDULED
+            MatchStatus.SCHEDULED,
+            null
         );
 
         finishMatchRequestDTO = new FinishMatchRequestDTO(3, 1);
 
-        createMatchCommand = new CreateMatchUseCase.CreateMatchCommand(10L, 1L, 2L, TEST_DATE, "Stadium A");
-        updateMatchCommand = new UpdateMatchUseCase.UpdateMatchCommand(1L, TEST_DATE, "Stadium A");
+        createMatchCommand = new CreateMatchUseCase.CreateMatchCommand(10L, 1L, 2L, TEST_DATE, "Stadium A", null);
+        updateMatchCommand = new UpdateMatchUseCase.UpdateMatchCommand(1L, TEST_DATE, "Stadium A", null);
         finishMatchCommand = new FinishMatchUseCase.FinishMatchCommand(1L, 3, 1);
 
         // Configure default behavior for MatchFilterBuilder
-        when(matchFilterBuilder.buildSearchCriteria(any(), any(), any(), any()))
+        when(matchFilterBuilder.buildSearchCriteria(any(), any(), any(), any(), any()))
                 .thenAnswer(invocation -> {
                     Object specificDate = invocation.getArgument(0);
                     Object dateFrom = invocation.getArgument(1);
                     Object dateTo = invocation.getArgument(2);
                     MatchStatus status = invocation.getArgument(3);
+                    Integer matchday = invocation.getArgument(4);
 
                     if (specificDate != null) {
-                        return MatchSearchCriteria.withSpecificDate((java.time.LocalDate) specificDate, status);
+                        return MatchSearchCriteria.withSpecificDate((java.time.LocalDate) specificDate, status, matchday);
                     } else if (dateFrom != null && dateTo != null) {
-                        return MatchSearchCriteria.withDateRange((java.time.LocalDate) dateFrom, (java.time.LocalDate) dateTo, status);
-                    } else if (status != null) {
-                        return MatchSearchCriteria.withStatus(status);
+                        return MatchSearchCriteria.withDateRange((java.time.LocalDate) dateFrom, (java.time.LocalDate) dateTo, status, matchday);
+                    } else if (status != null || matchday != null) {
+                        return MatchSearchCriteria.withStatus(status, matchday);
                     } else {
                         return MatchSearchCriteria.empty();
                     }
                 });
 
-        when(matchFilterBuilder.buildPageRequest(anyInt(), anyInt(), anyString(), anyString()))
+        when(matchFilterBuilder.buildPageRequest(anyInt(), anyInt(), anyString(), anyString(), any()))
                 .thenAnswer(invocation -> {
                     int page = invocation.getArgument(0);
                     int size = invocation.getArgument(1);
                     String sortBy = invocation.getArgument(2);
                     String direction = invocation.getArgument(3);
+                    String secondarySortBy = invocation.getArgument(4);
                     PageRequest.SortDirection sortDirection = "DESC".equalsIgnoreCase(direction)
                             ? PageRequest.SortDirection.DESC
                             : PageRequest.SortDirection.ASC;
-                    return PageRequest.of(page, size, sortBy, sortDirection);
+                    return PageRequest.of(page, size, sortBy, sortDirection, secondarySortBy);
                 });
     }
 
@@ -173,7 +176,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when homeTeamId is null")
         void shouldReturn400WhenHomeTeamIdIsNull() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(null, 2L, TEST_DATE, "Stadium A");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(null, 2L, TEST_DATE, "Stadium A", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +189,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when homeTeamId is not positive")
         void shouldReturn400WhenHomeTeamIdIsNotPositive() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(0L, 2L, TEST_DATE, "Stadium A");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(0L, 2L, TEST_DATE, "Stadium A", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -199,7 +202,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when awayTeamId is null")
         void shouldReturn400WhenAwayTeamIdIsNull() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, null, TEST_DATE, "Stadium A");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, null, TEST_DATE, "Stadium A", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -212,7 +215,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when awayTeamId is not positive")
         void shouldReturn400WhenAwayTeamIdIsNotPositive() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 0L, TEST_DATE, "Stadium A");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 0L, TEST_DATE, "Stadium A", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -225,7 +228,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when matchDate is null")
         void shouldReturn400WhenMatchDateIsNull() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, null, "Stadium A");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, null, "Stadium A", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -238,7 +241,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when field is blank")
         void shouldReturn400WhenFieldIsBlank() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, "");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, "", null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -252,7 +255,7 @@ class MatchControllerTest {
         @DisplayName("Should return 400 when field exceeds max length")
         void shouldReturn400WhenFieldExceedsMaxLength() throws Exception {
             String longField = "A".repeat(101);
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, longField);
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, longField, null);
 
             mockMvc.perform(post("/tournaments/10/matches")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -306,12 +309,12 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should get paginated matches for tournament without filters")
         void shouldGetPaginatedMatchesForTournament() throws Exception {
-            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            Match match2 = Match.reconstitute(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            Match match2 = Match.reconstitute(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<Match> matches = Arrays.asList(match1, match2);
 
-            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
@@ -365,10 +368,10 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should get matches with specific date filter")
         void shouldGetMatchesWithSpecificDateFilter() throws Exception {
-            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             List<Match> matches = Arrays.asList(match1);
 
-            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
@@ -392,12 +395,12 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should get matches with date range filter")
         void shouldGetMatchesWithDateRangeFilter() throws Exception {
-            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            Match match2 = Match.reconstitute(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            Match match2 = Match.reconstitute(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<Match> matches = Arrays.asList(match1, match2);
 
-            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            MatchResponseDTO response2 = new MatchResponseDTO(2L, 10L, 3L, 4L, null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<MatchResponseDTO> responses = Arrays.asList(response1, response2);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 2);
@@ -421,10 +424,10 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should get matches with status filter")
         void shouldGetMatchesWithStatusFilter() throws Exception {
-            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             List<Match> matches = Arrays.asList(match1);
 
-            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 0, 20, 1);
@@ -448,10 +451,10 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should get matches with custom pagination")
         void shouldGetMatchesWithCustomPagination() throws Exception {
-            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             List<Match> matches = Arrays.asList(match1);
 
-            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            MatchResponseDTO response1 = new MatchResponseDTO(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             List<MatchResponseDTO> responses = Arrays.asList(response1);
 
             Page<Match> matchPage = new Page<>(matches, 1, 10, 15);
@@ -485,10 +488,10 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should update match successfully with valid data")
         void shouldUpdateMatchSuccessfully() throws Exception {
-            MatchRequestDTO updateRequest = new MatchRequestDTO(1L, 2L, TEST_DATE.plusHours(2), "Stadium B");
-            Match updatedMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE.plusHours(2), "Stadium B", MatchStatus.SCHEDULED);
+            MatchRequestDTO updateRequest = new MatchRequestDTO(1L, 2L, TEST_DATE.plusHours(2), "Stadium B", null);
+            Match updatedMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE.plusHours(2), "Stadium B", MatchStatus.SCHEDULED, null);
             MatchResponseDTO updatedResponse = new MatchResponseDTO(
-                1L, 10L, 1L, 2L, null, null, TEST_DATE.plusHours(2), "Stadium B", MatchStatus.SCHEDULED
+                1L, 10L, 1L, 2L, null, null, TEST_DATE.plusHours(2), "Stadium B", MatchStatus.SCHEDULED, null
             );
 
             when(matchMapper.toUpdateCommand(eq(1L), any(MatchRequestDTO.class))).thenReturn(updateMatchCommand);
@@ -510,7 +513,7 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should return 400 when update with invalid data")
         void shouldReturn400WhenUpdateWithInvalidData() throws Exception {
-            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, "");
+            MatchRequestDTO invalidRequest = new MatchRequestDTO(1L, 2L, TEST_DATE, "", null);
 
             mockMvc.perform(put("/tournaments/10/matches/1")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -544,9 +547,9 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should set match result successfully")
         void shouldSetMatchResultSuccessfully() throws Exception {
-            Match finishedMatch = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            Match finishedMatch = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             MatchResponseDTO finishedResponse = new MatchResponseDTO(
-                1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED
+                1L, 10L, 1L, 2L, 3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null
             );
 
             when(matchMapper.toFinishCommand(eq(1L), any(FinishMatchRequestDTO.class))).thenReturn(finishMatchCommand);
@@ -610,9 +613,9 @@ class MatchControllerTest {
         @DisplayName("Should accept zero scores")
         void shouldAcceptZeroScores() throws Exception {
             FinishMatchRequestDTO zeroScoresRequest = new FinishMatchRequestDTO(0, 0);
-            Match finishedMatch = Match.reconstitute(1L, 10L, 1L, 2L, 0, 0, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            Match finishedMatch = Match.reconstitute(1L, 10L, 1L, 2L, 0, 0, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             MatchResponseDTO finishedResponse = new MatchResponseDTO(
-                1L, 10L, 1L, 2L, 0, 0, TEST_DATE, "Stadium A", MatchStatus.FINISHED
+                1L, 10L, 1L, 2L, 0, 0, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null
             );
 
             when(matchMapper.toFinishCommand(eq(1L), any(FinishMatchRequestDTO.class)))
@@ -638,9 +641,9 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should postpone match successfully")
         void shouldPostponeMatchSuccessfully() throws Exception {
-            Match postponedMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED);
+            Match postponedMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED, null);
             MatchResponseDTO postponedResponse = new MatchResponseDTO(
-                1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED
+                1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED, null
             );
 
             when(postponeMatchUseCase.postponeMatch(1L)).thenReturn(postponedMatch);
@@ -659,9 +662,9 @@ class MatchControllerTest {
         @Test
         @DisplayName("Should invoke use case when postponing match")
         void shouldInvokeUseCaseWhenPostponingMatch() throws Exception {
-            Match postponedMatch = Match.reconstitute(999L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED);
+            Match postponedMatch = Match.reconstitute(999L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED, null);
             MatchResponseDTO postponedResponse = new MatchResponseDTO(
-                999L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED
+                999L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.POSTPONED, null
             );
 
             when(postponeMatchUseCase.postponeMatch(999L)).thenReturn(postponedMatch);

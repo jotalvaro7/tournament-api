@@ -21,5 +21,8 @@ public record MatchRequestDTO(
 
         @NotBlank(message = "Field is required")
         @Size(max = 100, message = "Field name cannot exceed 100 characters")
-        String field
+        String field,
+
+        @Positive(message = "Matchday must be a positive number")
+        Integer matchday
 ) {}

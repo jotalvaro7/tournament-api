@@ -45,7 +45,7 @@ class DeleteMatchServiceTest {
     @DisplayName("Should delete match without result successfully")
     void shouldDeleteMatchWithoutResultSuccessfully() {
         // Given
-        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(match));
         doNothing().when(matchRepository).deleteById(MATCH_ID);
@@ -63,7 +63,7 @@ class DeleteMatchServiceTest {
     void shouldDeleteMatchWithResultAndDelegateStatsReversion() {
         // Given
         Match matchWithResult = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID,
-                3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED);
+                3, 1, VALID_DATE, "Stadium A", MatchStatus.FINISHED, null);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(matchWithResult));
 

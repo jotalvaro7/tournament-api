@@ -22,11 +22,13 @@ public interface MatchMapper {
     @Mapping(target = "awayTeamId", source = "request.awayTeamId")
     @Mapping(target = "matchDate", source = "request.matchDate")
     @Mapping(target = "field", source = "request.field")
+    @Mapping(target = "matchday", source = "request.matchday")
     CreateMatchUseCase.CreateMatchCommand toCreateCommand(Long tournamentId, MatchRequestDTO request);
 
     @Mapping(target = "matchId", source = "matchId")
     @Mapping(target = "matchDate", source = "request.matchDate")
     @Mapping(target = "field", source = "request.field")
+    @Mapping(target = "matchday", source = "request.matchday")
     UpdateMatchUseCase.UpdateMatchCommand toUpdateCommand(Long matchId, MatchRequestDTO request);
 
     @Mapping(target = "matchId", source = "matchId")

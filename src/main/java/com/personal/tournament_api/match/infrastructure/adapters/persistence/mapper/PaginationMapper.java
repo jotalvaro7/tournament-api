@@ -25,6 +25,9 @@ public class PaginationMapper {
                 ? Sort.Direction.ASC
                 : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, pageRequest.getSortBy());
+        if (pageRequest.getSecondarySortBy() != null) {
+            sort = sort.and(Sort.by(Sort.Direction.ASC, pageRequest.getSecondarySortBy()));
+        }
         return org.springframework.data.domain.PageRequest.of(pageRequest.getPage(), pageRequest.getSize(), sort);
     }
 

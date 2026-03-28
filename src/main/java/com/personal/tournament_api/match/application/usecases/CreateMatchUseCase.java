@@ -13,6 +13,7 @@ public interface CreateMatchUseCase {
             Long homeTeamId,
             Long awayTeamId,
             LocalDateTime matchDate,
-            String field
+            String field,
+            Integer matchday
     ) {}
 }

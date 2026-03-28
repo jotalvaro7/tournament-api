@@ -26,7 +26,8 @@ public class CreateMatchService implements CreateMatchUseCase {
                 command.homeTeamId(),
                 command.awayTeamId(),
                 command.matchDate(),
-                command.field()
+                command.field(),
+                command.matchday()
         );
 
         Match savedMatch = matchRepository.save(match);

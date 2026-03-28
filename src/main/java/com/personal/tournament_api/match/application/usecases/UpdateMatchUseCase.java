@@ -11,6 +11,7 @@ public interface UpdateMatchUseCase {
     record UpdateMatchCommand(
             Long matchId,
             LocalDateTime matchDate,
-            String field
+            String field,
+            Integer matchday
     ) {}
 }

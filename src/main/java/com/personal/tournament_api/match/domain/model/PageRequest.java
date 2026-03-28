@@ -11,25 +11,31 @@ public class PageRequest {
     private final int size;
     private final String sortBy;
     private final SortDirection direction;
+    private final String secondarySortBy;
 
     public enum SortDirection {
         ASC, DESC
     }
 
-    private PageRequest(int page, int size, String sortBy, SortDirection direction) {
+    private PageRequest(int page, int size, String sortBy, SortDirection direction, String secondarySortBy) {
         this.page = page;
         this.size = size;
         this.sortBy = sortBy;
         this.direction = direction;
+        this.secondarySortBy = secondarySortBy;
         validate();
     }
 
     public static PageRequest of(int page, int size) {
-        return new PageRequest(page, size, "matchDate", SortDirection.ASC);
+        return new PageRequest(page, size, "matchDate", SortDirection.ASC, null);
     }
 
     public static PageRequest of(int page, int size, String sortBy, SortDirection direction) {
-        return new PageRequest(page, size, sortBy, direction);
+        return new PageRequest(page, size, sortBy, direction, null);
+    }
+
+    public static PageRequest of(int page, int size, String sortBy, SortDirection direction, String secondarySortBy) {
+        return new PageRequest(page, size, sortBy, direction, secondarySortBy);
     }
 
     private void validate() {
@@ -60,6 +66,10 @@ public class PageRequest {
         return direction;
     }
 
+    public String getSecondarySortBy() {
+        return secondarySortBy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,12 +78,13 @@ public class PageRequest {
         return page == that.page &&
                size == that.size &&
                Objects.equals(sortBy, that.sortBy) &&
-               direction == that.direction;
+               direction == that.direction &&
+               Objects.equals(secondarySortBy, that.secondarySortBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(page, size, sortBy, direction);
+        return Objects.hash(page, size, sortBy, direction, secondarySortBy);
     }
 
     @Override
@@ -83,6 +94,7 @@ public class PageRequest {
                 ", size=" + size +
                 ", sortBy='" + sortBy + '\'' +
                 ", direction=" + direction +
+                ", secondarySortBy='" + secondarySortBy + '\'' +
                 '}';
     }
 }

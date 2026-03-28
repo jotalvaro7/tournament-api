@@ -42,4 +42,7 @@ public class MatchEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MatchStatus status;
+
+    @Column(name = "matchday")
+    private Integer matchday;
 }

@@ -42,9 +42,9 @@ class UpdateMatchServiceTest {
     @DisplayName("Should update match successfully")
     void shouldUpdateMatchSuccessfully() {
         // Given
-        Match existing = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match existing = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, HOME_TEAM_ID, AWAY_TEAM_ID, null, null, VALID_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
         LocalDateTime newDate = VALID_DATE.plusDays(1);
-        UpdateMatchCommand command = new UpdateMatchCommand(MATCH_ID, newDate, "Stadium B");
+        UpdateMatchCommand command = new UpdateMatchCommand(MATCH_ID, newDate, "Stadium B", null);
 
         when(matchRepository.findById(MATCH_ID)).thenReturn(Optional.of(existing));
         when(matchRepository.save(any(Match.class))).thenReturn(existing);
@@ -62,7 +62,7 @@ class UpdateMatchServiceTest {
     @DisplayName("Should throw MatchNotFoundException when match not found")
     void shouldThrowExceptionWhenMatchNotFound() {
         // Given
-        UpdateMatchCommand command = new UpdateMatchCommand(999L, VALID_DATE, "Stadium B");
+        UpdateMatchCommand command = new UpdateMatchCommand(999L, VALID_DATE, "Stadium B", null);
         when(matchRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then

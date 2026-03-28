@@ -52,13 +52,15 @@ public class MatchController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
             @RequestParam(required = false) MatchStatus status,
+            @RequestParam(required = false) Integer matchday,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "100") int size,
             @RequestParam(defaultValue = "matchDate") String sortBy,
-            @RequestParam(defaultValue = "DESC") String direction) {
+            @RequestParam(defaultValue = "DESC") String direction,
+            @RequestParam(required = false) String secondarySortBy) {
 
-        MatchSearchCriteria criteria = matchFilterBuilder.buildSearchCriteria(specificDate, dateFrom, dateTo, status);
-        PageRequest pageRequest = matchFilterBuilder.buildPageRequest(page, size, sortBy, direction);
+        MatchSearchCriteria criteria = matchFilterBuilder.buildSearchCriteria(specificDate, dateFrom, dateTo, status, matchday);
+        PageRequest pageRequest = matchFilterBuilder.buildPageRequest(page, size, sortBy, direction, secondarySortBy);
 
         Page<Match> matchPage = getMatchUseCase.getByTournamentIdWithFilters(tournamentId, criteria, pageRequest);
         Page<MatchResponseDTO> dtoPage = matchMapper.toResponsePage(matchPage);

@@ -29,7 +29,7 @@ class MatchPersistenceMapperTest {
     @DisplayName("Should map domain Match to MatchEntity")
     void shouldMapDomainMatchToEntity() {
         // Given
-        Match match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match match = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
         // When
         MatchEntity entity = mapper.toEntity(match);
@@ -52,7 +52,7 @@ class MatchPersistenceMapperTest {
     void shouldMapDomainMatchWithScoresToEntity() {
         // Given
         Match match = Match.reconstitute(1L, 10L, 1L, 2L, 3, 1,
-            TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
 
         // When
         MatchEntity entity = mapper.toEntity(match);
@@ -79,7 +79,7 @@ class MatchPersistenceMapperTest {
     void shouldMapEntityToDomainMatch() {
         // Given
         MatchEntity entity = new MatchEntity(1L, 10L, 1L, 2L, null, null,
-            TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
         // When
         Match match = mapper.toDomain(entity);
@@ -102,7 +102,7 @@ class MatchPersistenceMapperTest {
     void shouldMapEntityWithScoresToDomainMatch() {
         // Given
         MatchEntity entity = new MatchEntity(1L, 10L, 1L, 2L, 3, 1,
-            TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
 
         // When
         Match match = mapper.toDomain(entity);
@@ -129,9 +129,9 @@ class MatchPersistenceMapperTest {
     void shouldMapListOfEntitiesToListOfMatches() {
         // Given
         MatchEntity entity1 = new MatchEntity(1L, 10L, 1L, 2L, null, null,
-            TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
         MatchEntity entity2 = new MatchEntity(2L, 10L, 3L, 4L, 2, 1,
-            TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED);
+            TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED, null);
         List<MatchEntity> entities = Arrays.asList(entity1, entity2);
 
         // When
@@ -172,19 +172,19 @@ class MatchPersistenceMapperTest {
     @DisplayName("Should preserve all match statuses in mapping")
     void shouldPreserveAllMatchStatusesInMapping() {
         // Given & When & Then - SCHEDULED
-        Match scheduledMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+        Match scheduledMatch = Match.reconstitute(1L, 10L, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
         MatchEntity scheduledEntity = mapper.toEntity(scheduledMatch);
         assertEquals(MatchStatus.SCHEDULED, scheduledEntity.getStatus());
 
         // Given & When & Then - FINISHED
         Match finishedMatch = Match.reconstitute(2L, 10L, 1L, 2L, 3, 1,
-            TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+            TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
         MatchEntity finishedEntity = mapper.toEntity(finishedMatch);
         assertEquals(MatchStatus.FINISHED, finishedEntity.getStatus());
 
         // Given & When & Then - POSTPONED
         Match postponedMatch = Match.reconstitute(3L, 10L, 1L, 2L, null, null,
-            TEST_DATE, "Stadium A", MatchStatus.POSTPONED);
+            TEST_DATE, "Stadium A", MatchStatus.POSTPONED, null);
         MatchEntity postponedEntity = mapper.toEntity(postponedMatch);
         assertEquals(MatchStatus.POSTPONED, postponedEntity.getStatus());
     }

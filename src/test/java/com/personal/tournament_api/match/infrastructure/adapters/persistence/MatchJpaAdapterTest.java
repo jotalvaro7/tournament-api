@@ -48,12 +48,12 @@ class MatchJpaAdapterTest {
         @DisplayName("Should save match successfully")
         void shouldSaveMatchSuccessfully() {
             // Given
-            Match match = Match.reconstitute(null, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match = Match.reconstitute(null, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             MatchEntity entity = new MatchEntity(null, TOURNAMENT_ID, 1L, 2L,
-                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             MatchEntity savedEntity = new MatchEntity(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            Match savedMatch = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            Match savedMatch = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
             when(mapper.toEntity(match)).thenReturn(entity);
             when(matchJpaRepository.save(entity)).thenReturn(savedEntity);
@@ -75,11 +75,11 @@ class MatchJpaAdapterTest {
         void shouldUpdateExistingMatchSuccessfully() {
             // Given
             Match existingMatch = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             MatchEntity entity = new MatchEntity(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             MatchEntity savedEntity = new MatchEntity(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
 
             when(mapper.toEntity(existingMatch)).thenReturn(entity);
             when(matchJpaRepository.save(entity)).thenReturn(savedEntity);
@@ -99,10 +99,10 @@ class MatchJpaAdapterTest {
         @DisplayName("Should call mapper and repository in correct order")
         void shouldCallMapperAndRepositoryInCorrectOrder() {
             // Given
-            Match match = Match.reconstitute(null, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match = Match.reconstitute(null, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             MatchEntity entity = new MatchEntity();
             MatchEntity savedEntity = new MatchEntity();
-            Match savedMatch = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match savedMatch = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
             when(mapper.toEntity(match)).thenReturn(entity);
             when(matchJpaRepository.save(entity)).thenReturn(savedEntity);
@@ -128,8 +128,8 @@ class MatchJpaAdapterTest {
         void shouldFindMatchByIdSuccessfully() {
             // Given
             MatchEntity entity = new MatchEntity(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
-            Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
+            Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
 
             when(matchJpaRepository.findById(MATCH_ID)).thenReturn(Optional.of(entity));
             when(mapper.toDomain(entity)).thenReturn(match);
@@ -164,9 +164,9 @@ class MatchJpaAdapterTest {
         void shouldFindMatchWithScoresById() {
             // Given
             MatchEntity entity = new MatchEntity(MATCH_ID, TOURNAMENT_ID, 1L, 2L,
-                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+                3, 1, TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
             Match match = Match.reconstitute(MATCH_ID, TOURNAMENT_ID, 1L, 2L, 3, 1,
-                TEST_DATE, "Stadium A", MatchStatus.FINISHED);
+                TEST_DATE, "Stadium A", MatchStatus.FINISHED, null);
 
             when(matchJpaRepository.findById(MATCH_ID)).thenReturn(Optional.of(entity));
             when(mapper.toDomain(entity)).thenReturn(match);
@@ -190,14 +190,14 @@ class MatchJpaAdapterTest {
         void shouldFindAllMatchesByTournamentId() {
             // Given
             MatchEntity entity1 = new MatchEntity(1L, TOURNAMENT_ID, 1L, 2L,
-                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             MatchEntity entity2 = new MatchEntity(2L, TOURNAMENT_ID, 3L, 4L,
-                2, 1, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED);
+                2, 1, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED, null);
             List<MatchEntity> entities = Arrays.asList(entity1, entity2);
 
-            Match match1 = Match.reconstitute(1L, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, TOURNAMENT_ID, 1L, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             Match match2 = Match.reconstitute(2L, TOURNAMENT_ID, 3L, 4L, 2, 1,
-                TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED);
+                TEST_DATE.plusDays(1), "Stadium B", MatchStatus.FINISHED, null);
             List<Match> matches = Arrays.asList(match1, match2);
 
             when(matchJpaRepository.findAllByTournamentId(TOURNAMENT_ID)).thenReturn(entities);
@@ -241,14 +241,14 @@ class MatchJpaAdapterTest {
             // Given
             Long teamId = 1L;
             MatchEntity entity1 = new MatchEntity(1L, TOURNAMENT_ID, teamId, 2L,
-                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             MatchEntity entity2 = new MatchEntity(2L, TOURNAMENT_ID, 3L, teamId,
-                null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<MatchEntity> entities = Arrays.asList(entity1, entity2);
 
-            Match match1 = Match.reconstitute(1L, TOURNAMENT_ID, teamId, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED);
+            Match match1 = Match.reconstitute(1L, TOURNAMENT_ID, teamId, 2L, null, null, TEST_DATE, "Stadium A", MatchStatus.SCHEDULED, null);
             Match match2 = Match.reconstitute(2L, TOURNAMENT_ID, 3L, teamId,
-                null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED);
+                null, null, TEST_DATE.plusDays(1), "Stadium B", MatchStatus.SCHEDULED, null);
             List<Match> matches = Arrays.asList(match1, match2);
 
             when(matchJpaRepository.findAllByTeamId(teamId)).thenReturn(entities);

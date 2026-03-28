@@ -24,7 +24,7 @@ public class UpdateMatchService implements UpdateMatchUseCase {
         Match match = matchRepository.findById(command.matchId())
                 .orElseThrow(() -> new MatchNotFoundException(command.matchId()));
 
-        match.updateMatchDetails(command.matchDate(), command.field());
+        match.updateMatchDetails(command.matchDate(), command.field(), command.matchday());
         Match updatedMatch = matchRepository.save(match);
 
         log.info("Match updated with id: {}", updatedMatch.getId());
